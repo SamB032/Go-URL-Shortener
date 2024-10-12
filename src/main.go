@@ -1,10 +1,14 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
+	"html/template"
 	"log"
 )
+
+type FormData struct {
+	NewURL string
+}
 
 // Serve the main index page
 func indexPage(writer http.ResponseWriter, request *http.Request) {
@@ -26,11 +30,25 @@ func formSubmit(writer http.ResponseWriter, request *http.Request) {
 
 		oldURL := request.FormValue("enteredURL")
 
-		// Return the data back to the client
-		fmt.Fprintf(writer, "<html><body>")
-    fmt.Fprintf(writer, "<h2>Form Submission Received</h2>")
-    fmt.Fprintf(writer, "<p><strong>oldURL:</strong> %s</p>", oldURL)
-    fmt.Fprintf(writer, "</body></html>")
+		// Create a struct with the form data to pass to the template
+    data := FormData{
+			NewURL: oldURL,
+    }
+
+		// Open the newurl html file and use it as a template
+		tmpl, err := template.ParseFiles("template/newurl.html")
+    if err != nil {
+			log.Printf("Error parsing template: %v", err)
+      http.Error(writer, "Unable to load template", http.StatusInternalServerError)
+      return
+    }
+
+		// Render the template with the form data
+    err = tmpl.Execute(writer, data)
+    if err != nil {
+			log.Printf("Error executing template: %v", err)
+      http.Error(writer, "Unable to render template", http.StatusInternalServerError)
+    }
 	} else {
 		http.Error(writer, "Only POST method is supported", http.StatusMethodNotAllowed)
 	}
