@@ -5,9 +5,10 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"strings"
 )
 
-const SERVER_REDIRECT_URL = "localhost:8080/"
+const SERVER_REDIRECT_URL = "localhost:8080/sk/"
 
 var dbConnection *sql.DB
 
@@ -82,6 +83,28 @@ func formSubmit(writer http.ResponseWriter, request *http.Request) {
 	}
 }
 
+//User provides a short key and redirect them to the corresponding url
+func shortKeyHandler(writer http.ResponseWriter, request *http.Request) {
+	// Extract the shortkey from the URL
+  parts := strings.Split(request.URL.Path, "/")
+  if len(parts) < 3 {
+		http.Error(writer, "Shortkey not provided", http.StatusBadRequest)
+    return
+  }
+
+  shortKey := parts[2] // Get the shortkey from the URL
+  // Process the shortkey by searching the database
+
+	oldurl, err := findURLUsingShortkey(shortKey)
+	if err != nil {
+		log.Println(err)
+		http.Error(writer, "Could not find corresponding url", http.StatusBadRequest)
+	}
+
+	//Redict the user to the new url
+	http.Redirect(writer, request, oldurl, http.StatusFound)
+}
+
 func main() {
 	log.Println("Server Starting")
 
@@ -89,6 +112,7 @@ func main() {
 
 	http.HandleFunc("/", indexPage)
 	http.HandleFunc("/CreateShortUrl", formSubmit)
+	http.HandleFunc("/sk/", shortKeyHandler)
 	
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
