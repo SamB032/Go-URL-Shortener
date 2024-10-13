@@ -57,7 +57,12 @@ func formSubmit(writer http.ResponseWriter, request *http.Request) {
 				return
 			}
 		} else {
-			shortKey = generateShortKey() //Generate new shortkey	
+			shortKey, err = createShortKey() //Generate new shortkey	
+
+			if err != nil {
+				log.Fatal(err)
+				http.Error(writer, "Unable to generate shortkey", http.StatusInternalServerError)
+			}
 
 			//Add record to database
 			err = addRecord(oldurl, shortKey)
