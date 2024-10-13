@@ -44,16 +44,20 @@ func formSubmit(writer http.ResponseWriter, request *http.Request) {
 			http.Error(writer, "Input is not in form a of a url", http.StatusBadRequest)
 		}
 		
-		// Generate a new shortKey and record in database
+		// Generate a new shortKey
 		shortKey := generateShortKey() 		
-		log.Println(shortKey)
 		
-		//TODO: Pass of to a function to add record to database
+		//Add record to database
+		err = addRecord(oldURL, shortKey)
+		if err != nil {
+			log.Fatal(err)
+			http.Error(writer, "Unable to write record to database", http.StatusInternalServerError)
+		}
 
 		// Create a struct with the form data to pass to the template
 		type FormData struct { NewURL string }
     data := FormData{
-			NewURL: oldURL,
+			NewURL: shortKey,
     }
 
 		// Open the newurl html file and use it as a template
