@@ -1,12 +1,11 @@
 package main
 
 import (
-  _ "github.com/lib/pq"
-  "github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 
-  "database/sql"
-  "fmt"
-  "os"
+	"database/sql"
+	"fmt"
+	"os"
 )
 
 type PostgresData struct {
@@ -17,17 +16,10 @@ type PostgresData struct {
   dbName   string
 }
 
-// TODO: Write to use docker-compose environment variables
 //Load the posgres data from environment variables and return it as a struct
 func getDatabaseInfo() PostgresData {
-  err := godotenv.Load("../.env")
-  // Check if the .env file was loaded correctly
-  if err != nil {
-    panic(err)
-  }
-
   return PostgresData{
-    os.Getenv("POSTGRES_HOST"), "5432", os.Getenv("POSTGRES_USER"), os.Getenv("POSTGRES_PASSWORD"), os.Getenv("POSTGRES_DB"),
+    os.Getenv("POSTGRES_HOST"), os.Getenv("POSTGRES_PORT"), os.Getenv("POSTGRES_USER"), os.Getenv("POSTGRES_PASSWORD"), os.Getenv("POSTGRES_DB"  ),
   }
 }
 
