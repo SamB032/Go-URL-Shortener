@@ -2,14 +2,16 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 )
 
-const SERVER_REDIRECT_URL = "localhost:8080/sk/"
-
+var SERVER_PORT = os.Getenv("SERVER_PORT")
+var SERVER_REDIRECT_URL = fmt.Sprintf("localhost:%s/sk/", SERVER_PORT)
 var dbConnection *sql.DB
 
 // Open the connection to the database and save it as a global pointer variable
@@ -130,5 +132,5 @@ func main() {
 	http.HandleFunc("/CreateShortUrl", formSubmit)
 	http.HandleFunc("/sk/", shortKeyHandler)
 	
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", SERVER_PORT), nil))
 }
