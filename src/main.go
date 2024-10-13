@@ -7,6 +7,8 @@ import (
 	"net/http"
 )
 
+const SERVER_REDIRECT_URL = "localhost:8080/"
+
 var dbConnection *sql.DB
 
 // Open the connection to the database and save it as a global pointer variable
@@ -55,8 +57,9 @@ func formSubmit(writer http.ResponseWriter, request *http.Request) {
 		}
 
 		// Create a struct with the form data to pass to the template
-		type FormData struct { NewURL string }
+		type FormData struct { GetURL string; NewURL string }
     data := FormData{
+			GetURL: SERVER_REDIRECT_URL,
 			NewURL: shortKey,
     }
 
