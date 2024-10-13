@@ -10,7 +10,7 @@ func createShortKey() (string, error) {
   var newurl string
   for {
     newurl = generateShortKey()
-    if checkShortkeyExists(newurl) {
+    if !checkShortkeyExists(newurl) {
       return newurl, nil
     }
   } 
