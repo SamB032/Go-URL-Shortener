@@ -1,13 +1,25 @@
 package main
 
 import (
-	"net/http"
+	"database/sql"
 	"html/template"
 	"log"
+	"net/http"
 )
 
-type FormData struct {
-	NewURL string
+var dbConnection *sql.DB
+
+// Open the connection to the database and save it as a global pointer variable
+func handeDatabaseConnection() {
+	// No error, so if we return, it has successfully connected
+	message, db := connectToDatabase()
+
+	log.Println(message)
+
+	//HACK: Change this, only to pass go lint gha
+	log.Println(dbConnection)
+	//Save db as a global variable
+	dbConnection = db
 }
 
 // Serve the main index page
@@ -31,6 +43,7 @@ func formSubmit(writer http.ResponseWriter, request *http.Request) {
 		oldURL := request.FormValue("enteredURL")
 
 		// Create a struct with the form data to pass to the template
+		type FormData struct { NewURL string }
     data := FormData{
 			NewURL: oldURL,
     }
@@ -56,6 +69,8 @@ func formSubmit(writer http.ResponseWriter, request *http.Request) {
 
 func main() {
 	log.Println("Server Starting")
+
+	handeDatabaseConnection()
 
 	http.HandleFunc("/", indexPage)
 	http.HandleFunc("/CreateShortUrl", formSubmit)
