@@ -2,7 +2,7 @@ services:
   go-server:
     build:
       context: .
-      dockerfile: Dockerfile  # Ensure you have a Dockerfile for your Go application
+      dockerfile: Dockerfile
     ports:
       - ${SERVER_PORT}:${SERVER_PORT}
     environment:
@@ -30,7 +30,7 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_DB=${POSTGRES_DB}
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U admin -d urlDatabase"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${DATABASE_URL}"]
       interval: 5s
       timeout: 5s
       retries: 5
