@@ -11,7 +11,9 @@
  <body style="text-align: center;">
     <h1 style="font-size:50px">URL Shortener</h1>
 
-    <p style="font-size: 25px;"><strong>New Shortened URL: {{.NewURL}}</p>
+    <p style="font-size: 25px;"><strong>Shortened URL: 
+      <a style="text-decoration: underline blue; color: blue;" href="/sk/{{.NewURL}}">{{.GetURL}}{{.NewURL}}</a> 
+    </p>
 
     <!-- Button to go back to the home page -->
     <form action="/" method="get">

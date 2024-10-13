@@ -5,7 +5,10 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"strings"
 )
+
+const SERVER_REDIRECT_URL = "localhost:8080/sk/"
 
 var dbConnection *sql.DB
 
@@ -13,11 +16,8 @@ var dbConnection *sql.DB
 func handeDatabaseConnection() {
 	// No error, so if we return, it has successfully connected
 	message, db := connectToDatabase()
-
 	log.Println(message)
 
-	//HACK: Change this, only to pass go lint gha
-	log.Println(dbConnection)
 	//Save db as a global variable
 	dbConnection = db
 }
@@ -40,12 +40,44 @@ func formSubmit(writer http.ResponseWriter, request *http.Request) {
 			return
 		}
 
-		oldURL := request.FormValue("enteredURL")
+		oldurl := request.FormValue("enteredURL")
+
+		//Valite the input to see if its in a form of a url
+		valid, exists := validateIfURL(oldurl)
+		if !valid{
+			http.Error(writer, "Input is not in form a of a url", http.StatusBadRequest)
+		}
+		
+		var shortKey string
+		if exists {
+			//Query the database to get the shortkey if one already exsits
+			shortKey, err = findShortkeyUsingURL(oldurl)
+			if err != nil {
+				http.Error(writer, "Error finding the shortened url", http.StatusInternalServerError)
+				return
+			}
+		} else {
+			shortKey, err = createShortKey() //Generate new shortkey	
+
+			if err != nil {
+				log.Fatal(err)
+				http.Error(writer, "Unable to generate shortkey", http.StatusInternalServerError)
+			}
+
+			//Add record to database
+			err = addRecord(oldurl, shortKey)
+
+			if err != nil {
+				log.Fatal(err)
+				http.Error(writer, "Unable to write record to database", http.StatusInternalServerError)
+			}
+		}
 
 		// Create a struct with the form data to pass to the template
-		type FormData struct { NewURL string }
+		type FormData struct { GetURL string; NewURL string }
     data := FormData{
-			NewURL: oldURL,
+			GetURL: SERVER_REDIRECT_URL,
+			NewURL: shortKey,
     }
 
 		// Open the newurl html file and use it as a template
@@ -67,6 +99,28 @@ func formSubmit(writer http.ResponseWriter, request *http.Request) {
 	}
 }
 
+//User provides a short key and redirect them to the corresponding url
+func shortKeyHandler(writer http.ResponseWriter, request *http.Request) {
+	// Extract the shortkey from the URL
+  parts := strings.Split(request.URL.Path, "/")
+  if len(parts) < 3 {
+		http.Error(writer, "Shortkey not provided", http.StatusBadRequest)
+    return
+  }
+
+  shortKey := parts[2] // Get the shortkey from the URL
+  // Process the shortkey by searching the database
+
+	oldurl, err := findURLUsingShortkey(shortKey)
+	if err != nil {
+		log.Println(err)
+		http.Error(writer, "Could not find corresponding url", http.StatusBadRequest)
+	}
+
+	//Redict the user to the new url
+	http.Redirect(writer, request, oldurl, http.StatusFound)
+}
+
 func main() {
 	log.Println("Server Starting")
 
@@ -74,6 +128,7 @@ func main() {
 
 	http.HandleFunc("/", indexPage)
 	http.HandleFunc("/CreateShortUrl", formSubmit)
+	http.HandleFunc("/sk/", shortKeyHandler)
 	
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }

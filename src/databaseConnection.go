@@ -42,7 +42,6 @@ func connectToDatabase() (string, *sql.DB) {
   if err != nil {
     panic(err)
   }
-  defer db.Close()
 
   // Make a ping to the database to see if its alive
   err = db.Ping()
