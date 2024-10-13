@@ -36,7 +36,7 @@ func addRecord(oldurl string, shortKey string) error {
 
   if err != nil {
     return err
-	}
+  }
   return nil
 }
 
@@ -50,4 +50,16 @@ func findURLUsingShortkey(shortKey string) (string, error) {
       return "", err // Return any other errors
   }
   return oldURL, nil
+}
+
+// Find shortkey when given the url 
+func findShortkeyUsingURL(url string) (string, error) {
+  var shortKey string
+
+  query := "SELECT shortkey FROM url WHERE old_url = $1"
+  err := dbConnection.QueryRow(query, url).Scan(&shortKey)
+  if err != nil {
+      return "", err // Return any other errors
+  }
+  return shortKey, nil
 }

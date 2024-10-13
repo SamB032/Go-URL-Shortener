@@ -40,21 +40,32 @@ func formSubmit(writer http.ResponseWriter, request *http.Request) {
 			return
 		}
 
-		oldURL := request.FormValue("enteredURL")
+		oldurl := request.FormValue("enteredURL")
 
 		//Valite the input to see if its in a form of a url
-		if !validateIfURL(oldURL){
+		valid, exists := validateIfURL(oldurl)
+		if !valid{
 			http.Error(writer, "Input is not in form a of a url", http.StatusBadRequest)
 		}
 		
-		// Generate a new shortKey
-		shortKey := generateShortKey() 		
-		
-		//Add record to database
-		err = addRecord(oldURL, shortKey)
-		if err != nil {
-			log.Fatal(err)
-			http.Error(writer, "Unable to write record to database", http.StatusInternalServerError)
+		var shortKey string
+		if exists {
+			//Query the database to get the shortkey if one already exsits
+			shortKey, err = findShortkeyUsingURL(oldurl)
+			if err != nil {
+				http.Error(writer, "Error finding the shortened url", http.StatusInternalServerError)
+				return
+			}
+		} else {
+			shortKey = generateShortKey() //Generate new shortkey	
+
+			//Add record to database
+			err = addRecord(oldurl, shortKey)
+
+			if err != nil {
+				log.Fatal(err)
+				http.Error(writer, "Unable to write record to database", http.StatusInternalServerError)
+			}
 		}
 
 		// Create a struct with the form data to pass to the template
