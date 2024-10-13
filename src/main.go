@@ -13,11 +13,8 @@ var dbConnection *sql.DB
 func handeDatabaseConnection() {
 	// No error, so if we return, it has successfully connected
 	message, db := connectToDatabase()
-
 	log.Println(message)
 
-	//HACK: Change this, only to pass go lint gha
-	log.Println(dbConnection)
 	//Save db as a global variable
 	dbConnection = db
 }
@@ -41,6 +38,17 @@ func formSubmit(writer http.ResponseWriter, request *http.Request) {
 		}
 
 		oldURL := request.FormValue("enteredURL")
+
+		//Valite the input to see if its in a form of a url
+		if !validateIfURL(oldURL){
+			http.Error(writer, "Input is not in form a of a url", http.StatusBadRequest)
+		}
+		
+		// Generate a new shortKey and record in database
+		shortKey := generateShortKey() 		
+		log.Println(shortKey)
+		
+		//TODO: Pass of to a function to add record to database
 
 		// Create a struct with the form data to pass to the template
 		type FormData struct { NewURL string }
