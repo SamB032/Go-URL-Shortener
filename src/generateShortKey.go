@@ -3,7 +3,7 @@ package main
 import "math/rand"
 
 const URL_CHARSET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-const URL_LENGTH = 8
+const URL_LENGTH = 5
 
 //Generate a shortkey, return only if one is found that does not already exists
 func createShortKey() (string, error) {
