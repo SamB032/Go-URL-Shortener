@@ -1,7 +1,6 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"html/template"
 	"log"
@@ -12,16 +11,16 @@ import (
 
 var SERVER_PORT = os.Getenv("SERVER_PORT")
 var SERVER_REDIRECT_URL = fmt.Sprintf("localhost:%s/sk/", SERVER_PORT)
-var dbConnection *sql.DB
+var dbConnection *DBConnection
 
 // Open the connection to the database and save it as a global pointer variable
 func handeDatabaseConnection() {
 	// No error, so if we return, it has successfully connected
-	message, db := connectToDatabase()
+	message, dbConnector := connectToDatabase()
 	log.Println(message)
 
 	//Save db as a global variable
-	dbConnection = db
+	dbConnection = dbConnector
 }
 
 // Serve the main index page
@@ -45,16 +44,24 @@ func formSubmit(writer http.ResponseWriter, request *http.Request) {
 		oldurl := request.FormValue("enteredURL")
 
 		//Valite the input to see if its in a form of a url
-		valid, exists := validateIfURL(oldurl)
+		valid, exists, err := validateIfURL(oldurl)
+		if err != nil {
+			log.Fatal(err)
+			http.Error(writer, "There was an error when validating url input", http.StatusInternalServerError)
+			return
+		}
+
 		if !valid{
 			http.Error(writer, "Input is not in form a of a url", http.StatusBadRequest)
+			return
 		}
 		
 		var shortKey string
 		if exists {
 			//Query the database to get the shortkey if one already exsits
-			shortKey, err = findShortkeyUsingURL(oldurl)
+			shortKey, err = dbConnection.findShortkeyUsingURL(oldurl)
 			if err != nil {
+				log.Fatal(err)
 				http.Error(writer, "Error finding the shortened url", http.StatusInternalServerError)
 				return
 			}
@@ -64,14 +71,16 @@ func formSubmit(writer http.ResponseWriter, request *http.Request) {
 			if err != nil {
 				log.Fatal(err)
 				http.Error(writer, "Unable to generate shortkey", http.StatusInternalServerError)
+				return
 			}
 
 			//Add record to database
-			err = addRecord(oldurl, shortKey)
+			err = dbConnection.addRecord(oldurl, shortKey)
 
 			if err != nil {
 				log.Fatal(err)
 				http.Error(writer, "Unable to write record to database", http.StatusInternalServerError)
+				return
 			}
 		}
 
@@ -93,7 +102,7 @@ func formSubmit(writer http.ResponseWriter, request *http.Request) {
 		// Render the template with the form data
     err = tmpl.Execute(writer, data)
     if err != nil {
-			log.Printf("Error executing template: %v", err)
+			log.Fatalf("Error executing template: %v", err)
       http.Error(writer, "Unable to render template", http.StatusInternalServerError)
     }
 	} else {
@@ -113,7 +122,7 @@ func shortKeyHandler(writer http.ResponseWriter, request *http.Request) {
   shortKey := parts[2] // Get the shortkey from the URL
   // Process the shortkey by searching the database
 
-	oldurl, err := findURLUsingShortkey(shortKey)
+	oldurl, err := dbConnection.findURLUsingShortkey(shortKey)
 	if err != nil {
 		log.Println(err)
 		http.Error(writer, "Could not find corresponding url", http.StatusBadRequest)
