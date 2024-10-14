@@ -3,36 +3,39 @@ package main
 import (
   _ "github.com/lib/pq"
 
-  "log"
   "time"
+  "fmt"
 )
 
-func checkShortkeyExists(shortKey string) bool {
+// Checks whether a shortkey already exists in the database
+func (db *DBConnection) checkShortkeyExists(shortKey string) (bool, error) {
   query := `SELECT EXISTS(SELECT 1 FROM url WHERE shortkey = $1)`
 
   var exists bool
-  err := dbConnection.QueryRow(query, shortKey).Scan(&exists)
+  err := db.connection.QueryRow(query, shortKey).Scan(&exists)
 	if err != nil {
-		log.Fatalf("Error executing query: %v", err)
+    return false, fmt.Errorf("error executing query: %v", err)
 	}
-  return exists
+  return exists, nil
 }
 
-func checkIfURLExists(url string) bool {
+// Check whether a URL already exists in the database
+func (db *DBConnection) checkIfURLExists(url string) (bool, error) {
   query := `SELECT EXISTS(SELECT 1 from URL where old_url = $1)`
 
   var exists bool
-  err := dbConnection.QueryRow(query, url).Scan(&exists)
+  err := db.connection.QueryRow(query, url).Scan(&exists)
 	if err != nil {
-		log.Fatalf("Error executing query: %v", err)
+    return false, err 
 	}
-  return exists
+  return exists, nil
 }
 
-func addRecord(oldurl string, shortKey string) error {
+// Adds a mapping shortkey <-> url to the database
+func (db *DBConnection) addRecord(oldurl string, shortKey string) error {
   timestamp := time.Now() //Record timestamp of when record is added
 
-  _, err := dbConnection.Exec(`INSERT INTO url (created_at, old_url, shortkey) VALUES ($1, $2, $3)`, timestamp, oldurl, shortKey)
+  _, err := db.connection.Exec(`INSERT INTO url (created_at, old_url, shortkey) VALUES ($1, $2, $3)`, timestamp, oldurl, shortKey)
 
   if err != nil {
     return err
@@ -41,25 +44,25 @@ func addRecord(oldurl string, shortKey string) error {
 }
 
 // Find the corresponding short url when given a shortKey
-func findURLUsingShortkey(shortKey string) (string, error) {
+func (db *DBConnection) findURLUsingShortkey(shortKey string) (string, error) {
   var oldURL string
 
   query := "SELECT old_url FROM url WHERE shortkey = $1"
-  err := dbConnection.QueryRow(query, shortKey).Scan(&oldURL)
+  err := db.connection.QueryRow(query, shortKey).Scan(&oldURL)
   if err != nil {
-      return "", err // Return any other errors
+      return "", err
   }
   return oldURL, nil
 }
 
 // Find shortkey when given the url 
-func findShortkeyUsingURL(url string) (string, error) {
+func (db *DBConnection) findShortkeyUsingURL(url string) (string, error) {
   var shortKey string
 
   query := "SELECT shortkey FROM url WHERE old_url = $1"
-  err := dbConnection.QueryRow(query, url).Scan(&shortKey)
+  err := db.connection.QueryRow(query, url).Scan(&shortKey)
   if err != nil {
-      return "", err // Return any other errors
+      return "", err
   }
   return shortKey, nil
 }
