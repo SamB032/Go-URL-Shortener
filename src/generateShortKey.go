@@ -10,7 +10,10 @@ func createShortKey() (string, error) {
   var newurl string
   for {
     newurl = generateShortKey()
-    if !checkShortkeyExists(newurl) {
+    exists, err := dbConnection.checkShortkeyExists(newurl)
+    if err != nil {
+      return "", err
+    } else if !exists {
       return newurl, nil
     }
   } 

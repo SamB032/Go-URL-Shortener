@@ -16,6 +16,10 @@ type PostgresData struct {
   dbName   string
 }
 
+type DBConnection struct {
+  connection *sql.DB
+}
+
 //Load the posgres data from environment variables and return it as a struct
 func getDatabaseInfo() PostgresData {
   return PostgresData{
@@ -23,9 +27,8 @@ func getDatabaseInfo() PostgresData {
   }
 }
 
-func connectToDatabase() (string, *sql.DB) {
+func connectToDatabase() (string, *DBConnection) {
   dbInfo := getDatabaseInfo()
-
   psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", 
     dbInfo.host, dbInfo.port, dbInfo.user, dbInfo.password, dbInfo.dbName)
 
@@ -40,5 +43,7 @@ func connectToDatabase() (string, *sql.DB) {
   if err != nil {
     panic(err)
   }
-  return "Successfully connected to the database", db
+
+  //Save the connector as a struct
+  return "Successfully connected to the database", &DBConnection{db}
 }
