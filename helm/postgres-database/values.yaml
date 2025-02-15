@@ -34,6 +34,7 @@ securityContext: {}
   # runAsUser: 1000
 
 service:
+  protocol: TCP
   type: ClusterIP
   port: 5432
 
