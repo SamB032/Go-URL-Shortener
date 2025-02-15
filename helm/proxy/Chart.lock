@@ -1,0 +1,6 @@
+dependencies:
+- name: url-app
+  repository: file://../app
+  version: 0.1.0
+digest: sha256:f0d01fd586d85b3f748378336a1ac875cf4b0604186ded828dad8f167eba7799
+generated: "2025-02-15T14:58:24.648128882Z"

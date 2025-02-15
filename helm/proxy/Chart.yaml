@@ -1,5 +1,5 @@
 apiVersion: v2
-name: app
+name: proxy
 description: A Helm chart for Kubernetes
 
 # A chart can be either an 'application' or a 'library' chart.
@@ -24,7 +24,6 @@ version: 0.1.0
 appVersion: "1.16.0"
 
 dependencies:
-  - name: postgres-database
+  - name: url-app
     version: "0.1.0"
-    repository: "file://../postgres-database"
-
+    repository: "file://../app"
