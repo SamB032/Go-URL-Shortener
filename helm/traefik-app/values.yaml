@@ -1,0 +1,27 @@
+traefik:
+  ports:
+    web:
+      port: 80
+      expose:
+        enabled: true
+        exposedPort: 80
+        protocol: TCP
+    websecure:
+      port: 443
+      expose:
+        enabled: true
+        exposedPort: 443
+        protocol: TCP
+
+  dashboard:
+    enabled: true
+    ingressRoute: true
+
+  service:
+    type: NodePort
+
+  providers:
+    kubernetesCRD:
+      enabled: true
+    kubernetesIngress:
+      enabled: true
