@@ -23,7 +23,7 @@ type DBConnection struct {
 //Load the posgres data from environment variables and return it as a struct
 func getDatabaseInfo() PostgresData {
   return PostgresData{
-    os.Getenv("POSTGRES_HOST"), os.Getenv("POSTGRES_PORT"), os.Getenv("POSTGRES_USER"), os.Getenv("POSTGRES_PASSWORD"), os.Getenv("POSTGRES_DB"  ),
+    os.Getenv("POSTGRES_HOST"), os.Getenv("POSTGRES_PORT"), os.Getenv("POSTGRES_USER"), os.Getenv("POSTGRES_PASSWORD"), os.Getenv("POSTGRES_DB"),
   }
 }
 
