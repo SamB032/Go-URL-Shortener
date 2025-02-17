@@ -104,8 +104,9 @@ persistance:
   hostPath: "/home/user/apps/postgres"
 
 migrations:
+  # TODO: THIS IS NOT WORKING
   enabled: true
-  scriptPath: "./migrations/init.sql"
+  scriptPath: "../../migrations/init.sql"
 
 volumes:
   - name: postgres-data

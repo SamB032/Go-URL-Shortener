@@ -1,6 +1,0 @@
-dependencies:
-- name: postgres-database
-  repository: file://../postgres-database
-  version: 0.1.0
-digest: sha256:ec18bbeb58d1e325535b40c9c78bd1b42a49e8aa390b07949172a79ae6bbd1e6
-generated: "2025-02-15T14:58:57.182794473Z"

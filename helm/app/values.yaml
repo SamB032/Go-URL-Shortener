@@ -37,7 +37,7 @@ securityContext:
 
 service:
   type: ClusterIP
-  port: 8080
+  port: 8000
 
 # This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
 # ingress:
@@ -81,7 +81,7 @@ env:
   - name: POSTGRES_PORT
     value: "5432"
   - name: SERVER_PORT
-    value: "8080"
+    value: "8000"
 
 # This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
 livenessProbe:
