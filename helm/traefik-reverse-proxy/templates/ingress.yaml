@@ -1,11 +1,8 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: nginx-ingress-test
+  name: traefik-ingress
   namespace: url-app
-
-# helm install traefik traefik/traefik --version 21.2.0
-# Traefik needs to be setup as a nodeport
 
 spec:
   rules:
