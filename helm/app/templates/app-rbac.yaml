@@ -1,0 +1,26 @@
+# Create a Role granting necessary permissions in the database namespace
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: {{ .Values.namespace }}
+  name: app-role
+rules:
+  - apiGroups: [""]
+    resources: ["endpoints", "endpointslices"]
+    verbs: ["get", "list", "create", "update", "patch"]
+
+---
+# Create a RoleBinding to bind the Role to the default service account
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: app-role-binding
+  namespace: {{ .Values.namespace }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ .Values.serviceAccount.name }}
+    namespace: {{ .Values.namespace }}
+roleRef:
+  kind: Role
+  name: app-role
+  apiGroup: rbac.authorization.k8s.io
