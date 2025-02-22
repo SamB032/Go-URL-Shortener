@@ -90,23 +90,10 @@ readinessprobe:
   timeoutseconds: 5
   failurethreshold: 5
 
-env:
-  - name: POSTGRES_PASSWORD
-    value: "password"
-  - name: POSTGRES_USER
-    value: "user"
-  - name: POSTGRES_DB
-    value: "db"
-
 persistance:
   enabled: true
   size: 10Gi
   hostPath: "/home/user/apps/postgres"
-
-migrations:
-  # TODO: THIS IS NOT WORKING
-  enabled: true
-  scriptPath: "../../migrations/init.sql"
 
 volumes:
   - name: postgres-data
