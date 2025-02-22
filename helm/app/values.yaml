@@ -53,12 +53,6 @@ resources: {}
 
 # Should write some of these things into configMap, and store others a k8s secrets
 env:
-  - name: POSTGRES_PASSWORD
-    value: "password"
-  - name: POSTGRES_USER
-    value: "user"
-  - name: POSTGRES_DB
-    value: "db"
   - name: POSTGRES_HOST
     value: "postgres.database.svc.cluster.local"
   - name: POSTGRES_PORT
