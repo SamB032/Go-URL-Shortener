@@ -4,6 +4,7 @@ metadata:
   name: postgres-init-script
   namespace: {{ .Values.namespace | quote }}
 data:
+  # Would like to avoid hard coding sql query. Need to somehow grab from migtations/init.sql
   create_tables.sql: |
     CREATE TABLE url (
       mapping_id SERIAL PRIMARY KEY,
