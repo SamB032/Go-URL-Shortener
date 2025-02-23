@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"html/template"
 	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"strings"
@@ -12,15 +13,17 @@ import (
 var SERVER_PORT = os.Getenv("SERVER_PORT")
 var SERVER_REDIRECT_URL = fmt.Sprintf("localhost:%s/sk/", SERVER_PORT)
 var dbConnection *DBConnection
+var logger = setupLogger()
+
+// Create a logger that outputs json logs
+func setupLogger() *slog.Logger {
+	return slog.New(slog.NewJSONHandler(os.Stdout, nil))
+}
 
 // Open the connection to the database and save it as a global pointer variable
 func handeDatabaseConnection() {
 	// No error, so if we return, it has successfully connected
-	message, dbConnector := connectToDatabase()
-	log.Println(message)
-
-	//Save db as a global variable
-	dbConnection = dbConnector
+	dbConnection = connectToDatabase(logger)
 }
 
 // Serve the main index page
@@ -99,7 +102,6 @@ func formSubmit(writer http.ResponseWriter, request *http.Request) {
       return
     }
 
-		// Render the template with the form data
     err = tmpl.Execute(writer, data)
     if err != nil {
 			log.Fatalf("Error executing template: %v", err)
@@ -133,7 +135,7 @@ func shortKeyHandler(writer http.ResponseWriter, request *http.Request) {
 }
 
 func main() {
-	log.Println("Server Starting")
+	logger.Info("Starting Server")
 
 	handeDatabaseConnection()
 

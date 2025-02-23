@@ -4,6 +4,7 @@ import (
 	_ "github.com/lib/pq"
 
 	"database/sql"
+  "log/slog"
 	"fmt"
 	"os"
 )
@@ -27,23 +28,37 @@ func getDatabaseInfo() PostgresData {
   }
 }
 
-func connectToDatabase() (string, *DBConnection) {
+func connectToDatabase(logger *slog.Logger) *DBConnection {
   dbInfo := getDatabaseInfo()
+
   psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", 
     dbInfo.host, dbInfo.port, dbInfo.user, dbInfo.password, dbInfo.dbName)
 
   //Initalise a connection to the database
   db, err := sql.Open("postgres", psqlInfo)
   if err != nil {
+    logger.Info("Failed to connect to database",
+      slog.String("host", dbInfo.host),
+      slog.String("DBName", dbInfo.dbName),
+    )
     panic(err)
   }
 
   // Make a ping to the database to see if its alive
   err = db.Ping()
   if err != nil {
+    logger.Info("Failed to connect to ping database",
+      slog.String("host", dbInfo.host),
+      slog.String("DBName", dbInfo.dbName),
+    )
     panic(err)
   }
 
+  logger.Info("Successfully connect to the database",
+    slog.String("host", dbInfo.host),
+    slog.String("DBName", dbInfo.dbName),
+  )
+
   //Save the connector as a struct
-  return "Successfully connected to the database", &DBConnection{db}
+  return &DBConnection{db}
 }
