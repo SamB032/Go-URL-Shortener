@@ -174,6 +174,9 @@ func shortKeyHandler(writer http.ResponseWriter, request *http.Request) {
 	// Extract the shortkey from the URL
   parts := strings.Split(request.URL.Path, "/")
   if len(parts) < 3 {
+		logger.Debug("Short Key not provided",
+			slog.Int("StatusCode", http.StatusBadRequest),
+		)
 		http.Error(writer, "Shortkey not provided", http.StatusBadRequest)
     return
   }
@@ -183,7 +186,11 @@ func shortKeyHandler(writer http.ResponseWriter, request *http.Request) {
 
 	oldurl, err := dbConnection.findURLUsingShortkey(shortKey)
 	if err != nil {
-		log.Println(err)
+		logger.Error("Could not find corresponding url",
+			slog.String("shortKey", shortKey),
+			slog.String("Error", err.Error()),
+			slog.Int("StatusCode", http.StatusBadRequest),
+		)
 		http.Error(writer, "Could not find corresponding url", http.StatusBadRequest)
 	}
 
