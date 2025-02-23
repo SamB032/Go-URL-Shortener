@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"html/template"
-	"log"
 	"log/slog"
 	"net/http"
 	"os"
@@ -12,13 +11,37 @@ import (
 
 var SERVER_PORT = os.Getenv("SERVER_PORT")
 var SERVER_REDIRECT_URL = fmt.Sprintf("localhost:%s/sk/", SERVER_PORT)
+var LOGGING_LEVEL = os.Getenv("LOGGING_LEVEL")
 var dbConnection *DBConnection
 var logger = setupLogger()
 
 // Create a logger that outputs json logs
 func setupLogger() *slog.Logger {
+	if len(LOGGING_LEVEL) == 0 {
+		LOGGING_LEVEL = "INFO"
+	}
+
+	// Convert the LOGGING_LEVEL to uppercase to make it case-insensitive
+	level := strings.ToUpper(LOGGING_LEVEL)
+
+	// Set the appropriate log level based on the environment variable
+	var logLevel slog.Level
+	switch level {
+		case "DEBUG":
+			logLevel = slog.LevelDebug
+		case "INFO":
+			logLevel = slog.LevelInfo
+		case "WARN":
+			logLevel = slog.LevelWarn
+		case "ERROR":
+			logLevel = slog.LevelError
+		default:
+			// Default to INFO if the LOGGING_LEVEL is invalid
+			logLevel = slog.LevelInfo
+	}
+
 	return slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
-		Level: slog.LevelDebug, // Set log level to DEBUG
+		Level: logLevel, // Set log level to DEBUG
 	}))
 }
 
@@ -186,20 +209,28 @@ func shortKeyHandler(writer http.ResponseWriter, request *http.Request) {
 
 	oldurl, err := dbConnection.findURLUsingShortkey(shortKey)
 	if err != nil {
-		logger.Error("Could not find corresponding url",
+		logger.Debug("Could not find corresponding url",
 			slog.String("shortKey", shortKey),
 			slog.String("Error", err.Error()),
 			slog.Int("StatusCode", http.StatusBadRequest),
 		)
 		http.Error(writer, "Could not find corresponding url", http.StatusBadRequest)
+		return
 	}
+
+	logger.Debug("Found corresponding url", 
+		slog.String("shortkey", shortKey),
+		slog.String("url", oldurl),
+	)
 
 	//Redict the user to the new url
 	http.Redirect(writer, request, oldurl, http.StatusFound)
 }
 
 func main() {
-	logger.Info("Starting Server")
+	logger.Info("Starting Server",
+		slog.String("RequestedPort", SERVER_PORT),
+	)
 
 	handeDatabaseConnection()
 
@@ -207,5 +238,13 @@ func main() {
 	http.HandleFunc("/CreateShortUrl", formSubmit)
 	http.HandleFunc("/sk/", shortKeyHandler)
 	
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", SERVER_PORT), nil))
+	// Start the HTTP server and log any errors using structured logging
+	err := http.ListenAndServe(fmt.Sprintf(":%s", SERVER_PORT), nil)
+	if err != nil {
+		logger.Error("Failed to start HTTP server",
+			slog.String("serverPort", SERVER_PORT),
+			slog.String("error", err.Error()),
+		)
+		os.Exit(1)
+	}
 }
