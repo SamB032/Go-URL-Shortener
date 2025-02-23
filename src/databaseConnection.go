@@ -4,6 +4,7 @@ import (
 	_ "github.com/lib/pq"
 
 	"database/sql"
+  "log/slog"
 	"fmt"
 	"os"
 )
@@ -27,23 +28,46 @@ func getDatabaseInfo() PostgresData {
   }
 }
 
-func connectToDatabase() (string, *DBConnection) {
+func connectToDatabase(logger *slog.Logger) (*DBConnection, error) {
   dbInfo := getDatabaseInfo()
+
   psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", 
     dbInfo.host, dbInfo.port, dbInfo.user, dbInfo.password, dbInfo.dbName)
 
   //Initalise a connection to the database
   db, err := sql.Open("postgres", psqlInfo)
   if err != nil {
-    panic(err)
+    logger.Error("Failed to connect to database",
+      slog.String("host", dbInfo.host),
+      slog.String("DBName", dbInfo.dbName),
+      slog.String("Error", err.Error()),
+    )
+    return nil, fmt.Errorf("database connection failed: %w", err)
   }
+
+  // Ensure the connection is properly closed on error
+	defer func() {
+		if err != nil {
+			db.Close()
+		}
+	}()
 
   // Make a ping to the database to see if its alive
   err = db.Ping()
   if err != nil {
-    panic(err)
+    logger.Info("Failed to connect to ping database",
+      slog.String("host", dbInfo.host),
+      slog.String("DBName", dbInfo.dbName),
+      slog.String("Error", err.Error()),
+    )
+    return nil, fmt.Errorf("database ping failed: %w", err)
   }
 
+  logger.Info("Successfully connect to the database",
+    slog.String("host", dbInfo.host),
+    slog.String("DBName", dbInfo.dbName),
+  )
+
   //Save the connector as a struct
-  return "Successfully connected to the database", &DBConnection{db}
+  return &DBConnection{db}, nil
 }

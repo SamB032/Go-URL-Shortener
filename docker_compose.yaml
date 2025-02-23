@@ -12,6 +12,7 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_DB=${POSTGRES_DB}
       - SERVER_PORT=${SERVER_PORT}
+      - LOGGING_LEVEL=DEBUG
     depends_on:
       postgres:
         condition: service_healthy
