@@ -17,29 +17,50 @@ var logger = setupLogger()
 
 // Create a logger that outputs json logs
 func setupLogger() *slog.Logger {
-	return slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	return slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+		Level: slog.LevelDebug, // Set log level to DEBUG
+	}))
 }
 
 // Open the connection to the database and save it as a global pointer variable
 func handeDatabaseConnection() {
 	// No error, so if we return, it has successfully connected
-	dbConnection = connectToDatabase(logger)
+	dbConnect, err := connectToDatabase(logger)
+	if err != nil {
+		// Exit the program
+		os.Exit(1)
+	}
+	dbConnection = dbConnect
 }
 
 // Serve the main index page
 func indexPage(writer http.ResponseWriter, request *http.Request) {
-	log.Printf("index: Received %s request from %s", request.Method, request.RemoteAddr)
+	logger.Debug("Received HTTP request",
+		slog.String("url", "/"),
+		slog.String("Method", request.Method),
+		slog.String("Address", request.RemoteAddr),
+	)
 	http.ServeFile(writer, request, "template/index.html")
 }
 
 // Handle the form submit in the page
 func formSubmit(writer http.ResponseWriter, request *http.Request) {
-	log.Printf("formSubmit: Received %s request from %s", request.Method, request.RemoteAddr)
+	logger.Debug("Received HTTP request",
+		slog.String("url", "/CreateShortUrl"),
+		slog.String("Method", request.Method),
+		slog.String("Address", request.RemoteAddr),
+	)
 
 	if request.Method == http.MethodPost {
 		// Check that the request can be parsed
 		err := request.ParseForm()
 		if err != nil {
+			logger.Debug("Unable to process form submit",
+				slog.String("url", "/CreateShortUrl"),
+				slog.String("Address", request.RemoteAddr),
+				slog.Int("StatusCode", http.StatusBadRequest),
+				slog.String("Error", err.Error()),
+			)
 			http.Error(writer, "Unable to process form", http.StatusBadRequest)
 			return
 		}
@@ -49,12 +70,18 @@ func formSubmit(writer http.ResponseWriter, request *http.Request) {
 		//Valite the input to see if its in a form of a url
 		valid, exists, err := validateIfURL(oldurl)
 		if err != nil {
-			log.Fatal(err)
-			http.Error(writer, "There was an error when validating url input", http.StatusInternalServerError)
-			return
+			logger.Error("Error validating url input",
+				slog.String("enteredURL", oldurl),
+				slog.String("Error", err.Error()),
+				slog.Int("StatusCode", http.StatusInternalServerError),
+			)
 		}
 
 		if !valid{
+			logger.Debug("Input is not in form of url",
+				slog.String("enteredURL", oldurl),
+				slog.Int("StatusCode", http.StatusBadRequest),
+			)
 			http.Error(writer, "Input is not in form a of a url", http.StatusBadRequest)
 			return
 		}
@@ -64,7 +91,11 @@ func formSubmit(writer http.ResponseWriter, request *http.Request) {
 			//Query the database to get the shortkey if one already exsits
 			shortKey, err = dbConnection.findShortkeyUsingURL(oldurl)
 			if err != nil {
-				log.Fatal(err)
+				logger.Error("Error finding shortended url",
+					slog.String("oldurl", oldurl),
+					slog.String("Error", err.Error()),
+					slog.Int("StatusCode", http.StatusInternalServerError),
+				)
 				http.Error(writer, "Error finding the shortened url", http.StatusInternalServerError)
 				return
 			}
@@ -72,7 +103,9 @@ func formSubmit(writer http.ResponseWriter, request *http.Request) {
 			shortKey, err = createShortKey() //Generate new shortkey	
 
 			if err != nil {
-				log.Fatal(err)
+				logger.Error("Unable to generate shortkey",
+					slog.String("Error", err.Error()),
+				)
 				http.Error(writer, "Unable to generate shortkey", http.StatusInternalServerError)
 				return
 			}
@@ -81,7 +114,12 @@ func formSubmit(writer http.ResponseWriter, request *http.Request) {
 			err = dbConnection.addRecord(oldurl, shortKey)
 
 			if err != nil {
-				log.Fatal(err)
+				logger.Error("Unable to write record to database", 
+					slog.String("oldUrl", oldurl),
+					slog.String("shortKey", shortKey),
+					slog.String("Error", err.Error()),
+					slog.Int("StatusCode", http.StatusInternalServerError),
+				)
 				http.Error(writer, "Unable to write record to database", http.StatusInternalServerError)
 				return
 			}
@@ -97,17 +135,36 @@ func formSubmit(writer http.ResponseWriter, request *http.Request) {
 		// Open the newurl html file and use it as a template
 		tmpl, err := template.ParseFiles("template/newurl.html")
     if err != nil {
-			log.Printf("Error parsing template: %v", err)
+			logger.Error("Unable to parse template",
+				slog.String("template", "tempalte/newurl.html"),
+				slog.String("Error", err.Error()),
+				slog.Int("StatusCode", http.StatusInternalServerError),
+			)
       http.Error(writer, "Unable to load template", http.StatusInternalServerError)
       return
     }
 
     err = tmpl.Execute(writer, data)
     if err != nil {
-			log.Fatalf("Error executing template: %v", err)
+			logger.Error("Error executing template",
+				slog.String("Error", err.Error()),
+				slog.Int("StatusCode", http.StatusInternalServerError),
+			)
       http.Error(writer, "Unable to render template", http.StatusInternalServerError)
+			return
     }
+
+		// Log that page loading was a success
+		logger.Debug("Page rendering success",
+			slog.String("url", "/CreateShortUrl"),
+			slog.String("Method", request.Method),
+			slog.String("Address", request.RemoteAddr),
+		)
 	} else {
+		logger.Debug("Method not supported",
+			slog.String("Mehod", request.Method),
+			slog.String("url", "/CreateShortUrl"),
+		)
 		http.Error(writer, "Only POST method is supported", http.StatusMethodNotAllowed)
 	}
 }
