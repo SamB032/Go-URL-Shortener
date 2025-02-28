@@ -61,5 +61,5 @@ To install traefik:
   2. `kubectl get all` to verify deployment and service creation
   3. `minikube tunnel` or equivalent to provide ingress to load balancer
 
-### 6. Loading site
+#### 6. Loading site
 Once all deployments are successful, visit `http://127.0.0.1/` in your browser to use the url-app.
