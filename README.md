@@ -1,11 +1,14 @@
 ## About
+---
 A go application that can shorten URL. This works by generating a random short key for URL and saving the mapping in a database. When the user uses the short key, they are redirected to the URL that is mapped to that shortkey.
 
 ## Running development server
+---
 A `docker_compose.yaml` file has been made that allows for the application and the database to be quickly spun up. 
 Run `docker compose -f docker_compose.yaml up` to the services. You might need build the application with docker first or provide the image package URL generated in this repository.
 
 ## kubernetes
+---
 The kubernetes release is based on the architecture below:
 ![kubernetes architecture diagram](doc/architecture.png)
 
