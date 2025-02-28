@@ -26,7 +26,7 @@ Create the following namespaces using these commands:
 1. `kubectl create ns url-app`
 2. `kubectl create ns postgres-database`
 
-### 2. Create application and database secrets
+#### 2. Create application and database secrets
 Create Kubernetes secrets by executing these commands:
 ```
 kubectl create secret generic postgres-secret \
@@ -44,21 +44,22 @@ kubectl create secret generic postgres-secret \
   --namespace=url-app
 ```
 I would change the secrets to be more secure. Just as an example.
-### Deploy postgres database
+
+#### 3. Deploy postgres database
 To install the database:
   1. `helm install postgres-database helm/postgres-database`
   2. `kubectl get all -n postgres-database` to verify deployment and service creation
 
-### Deploy url-app
+#### 4. Deploy url-app
 To install the url-app:
   1. `helm install app helm/app`
   2. `kubectl get all -n url-app` to verify deployment and service creation
 
-### Deploy Traefik
+#### 5. Deploy Traefik
 To install traefik:
   1. `helm instal traefik helm/traefik-reverse-proxy`
   2. `kubectl get all` to verify deployment and service creation
   3. `minikube tunnel` or equivalent to provide ingress to load balancer
 
-### Loading site
+### 6. Loading site
 Once all deployments are successful, visit `http://127.0.0.1/` in your browser to use the url-app.
