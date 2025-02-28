@@ -5,7 +5,7 @@ A go application that can shorten URL. This works by generating a random short k
 A `docker_compose.yaml` file has been made that allows for the application and the database to be quickly spun up. 
 Run `docker compose -f docker_compose.yaml up` to the services. You might need build the application with docker first or provide the image package URL generated in this repository.
 
-## kubernetes
+## Kubernetes
 The kubernetes release is based on the architecture below:
 ![kubernetes architecture diagram](doc/architecture.png)
 
@@ -16,7 +16,6 @@ Go http URL app manages the core logic of the whole application. It provides use
 The Postgres database is used to store the shortkey to URL mappings. This is read the Go http server pods. We have replica on standby is we encounter any issues with the current Postgres pod.
 
 ### Installing using helm 
----
 Before starting to ensure that `helm` is installed, along with a Kubernetes. I would recommend **minikube** as this works well with the Traefik load balancer.
 
 #### 1. Create Namespaces
