@@ -8,7 +8,7 @@ import (
 func validateIfURL(url string) (bool, bool, error) {
   exists, err := dbConnection.checkIfURLExists(url)
   if err != nil {
-    return false, false, err
+		return false, false, err
   }
   if exists {
     return true, true, nil

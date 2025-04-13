@@ -13,9 +13,9 @@ func (db *DBConnection) checkShortkeyExists(shortKey string) (bool, error) {
 
   var exists bool
   err := db.connection.QueryRow(query, shortKey).Scan(&exists)
-	if err != nil {
+  if err != nil {
     return false, fmt.Errorf("error executing query: %v", err)
-	}
+  }
   return exists, nil
 }
 
@@ -25,7 +25,7 @@ func (db *DBConnection) checkIfURLExists(url string) (bool, error) {
 
   var exists bool
   err := db.connection.QueryRow(query, url).Scan(&exists)
-	if err != nil {
+  if err != nil {
     return false, err 
 	}
   return exists, nil
