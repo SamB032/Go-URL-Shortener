@@ -15,7 +15,19 @@ Go http URL app manages the core logic of the whole application. It provides use
 
 The Postgres database is used to store the shortkey to URL mappings. This is read the Go http server pods. We have replica on standby is we encounter any issues with the current Postgres pod.
 
-### Installing using helm 
+### (Option 1) Installing using Terraform
+Terraform is a declaritive configuration file that allows for resources to be provisioned. A **helm** and **kubernetes** prprovider has been provisioned using kube config inside `~/.kube/config`. Note: Install `terraform` binary before proceeding.
+
+To Apply the terraform config:
+1. Clone the repository
+2. run `cd resources`
+4. run `terraform apply`
+
+Once all deployments are successful, visit `http://127.0.0.1/` in your browser to use the url-app.
+
+To Delete, run `terraform destroy`.
+
+### (Option 2) Installing manually helm 
 Before starting to ensure that `helm` is installed, along with a Kubernetes. I would recommend **minikube** as this works well with the Traefik load balancer.
 
 #### 1. Create Namespaces
