@@ -27,17 +27,17 @@ func setupLogger() *slog.Logger {
 	// Set the appropriate log level based on the environment variable
 	var logLevel slog.Level
 	switch level {
-		case "DEBUG":
-			logLevel = slog.LevelDebug
-		case "INFO":
-			logLevel = slog.LevelInfo
-		case "WARN":
-			logLevel = slog.LevelWarn
-		case "ERROR":
-			logLevel = slog.LevelError
-		default:
-			// Default to INFO if the LOGGING_LEVEL is invalid
-			logLevel = slog.LevelInfo
+	case "DEBUG":
+		logLevel = slog.LevelDebug
+	case "INFO":
+		logLevel = slog.LevelInfo
+	case "WARN":
+		logLevel = slog.LevelWarn
+	case "ERROR":
+		logLevel = slog.LevelError
+	default:
+		// Default to INFO if the LOGGING_LEVEL is invalid
+		logLevel = slog.LevelInfo
 	}
 
 	return slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
@@ -100,7 +100,7 @@ func formSubmit(writer http.ResponseWriter, request *http.Request) {
 			)
 		}
 
-		if !valid{
+		if !valid {
 			logger.Debug("Input is not in form of url",
 				slog.String("enteredURL", oldurl),
 				slog.Int("StatusCode", http.StatusBadRequest),
@@ -108,7 +108,7 @@ func formSubmit(writer http.ResponseWriter, request *http.Request) {
 			http.Error(writer, "Input is not in form a of a url", http.StatusBadRequest)
 			return
 		}
-		
+
 		var shortKey string
 		if exists {
 			//Query the database to get the shortkey if one already exsits
@@ -123,7 +123,7 @@ func formSubmit(writer http.ResponseWriter, request *http.Request) {
 				return
 			}
 		} else {
-			shortKey, err = createShortKey() //Generate new shortkey	
+			shortKey, err = createShortKey() //Generate new shortkey
 
 			if err != nil {
 				logger.Error("Unable to generate shortkey",
@@ -137,7 +137,7 @@ func formSubmit(writer http.ResponseWriter, request *http.Request) {
 			err = dbConnection.addRecord(oldurl, shortKey)
 
 			if err != nil {
-				logger.Error("Unable to write record to database", 
+				logger.Error("Unable to write record to database",
 					slog.String("oldUrl", oldurl),
 					slog.String("shortKey", shortKey),
 					slog.String("Error", err.Error()),
@@ -149,33 +149,36 @@ func formSubmit(writer http.ResponseWriter, request *http.Request) {
 		}
 
 		// Create a struct with the form data to pass to the template
-		type FormData struct { GetURL string; NewURL string }
-    data := FormData{
+		type FormData struct {
+			GetURL string
+			NewURL string
+		}
+		data := FormData{
 			GetURL: SERVER_REDIRECT_URL,
 			NewURL: shortKey,
-    }
+		}
 
 		// Open the newurl html file and use it as a template
 		tmpl, err := template.ParseFiles("template/newurl.html")
-    if err != nil {
+		if err != nil {
 			logger.Error("Unable to parse template",
 				slog.String("template", "tempalte/newurl.html"),
 				slog.String("Error", err.Error()),
 				slog.Int("StatusCode", http.StatusInternalServerError),
 			)
-      http.Error(writer, "Unable to load template", http.StatusInternalServerError)
-      return
-    }
+			http.Error(writer, "Unable to load template", http.StatusInternalServerError)
+			return
+		}
 
-    err = tmpl.Execute(writer, data)
-    if err != nil {
+		err = tmpl.Execute(writer, data)
+		if err != nil {
 			logger.Error("Error executing template",
 				slog.String("Error", err.Error()),
 				slog.Int("StatusCode", http.StatusInternalServerError),
 			)
-      http.Error(writer, "Unable to render template", http.StatusInternalServerError)
+			http.Error(writer, "Unable to render template", http.StatusInternalServerError)
 			return
-    }
+		}
 
 		// Log that page loading was a success
 		logger.Debug("Page rendering success",
@@ -192,20 +195,20 @@ func formSubmit(writer http.ResponseWriter, request *http.Request) {
 	}
 }
 
-//User provides a short key and redirect them to the corresponding url
+// User provides a short key and redirect them to the corresponding url
 func shortKeyHandler(writer http.ResponseWriter, request *http.Request) {
 	// Extract the shortkey from the URL
-  parts := strings.Split(request.URL.Path, "/")
-  if len(parts) < 3 {
+	parts := strings.Split(request.URL.Path, "/")
+	if len(parts) < 3 {
 		logger.Debug("Short Key not provided",
 			slog.Int("StatusCode", http.StatusBadRequest),
 		)
 		http.Error(writer, "Shortkey not provided", http.StatusBadRequest)
-    return
-  }
+		return
+	}
 
-  shortKey := parts[2] // Get the shortkey from the URL
-  // Process the shortkey by searching the database
+	shortKey := parts[2] // Get the shortkey from the URL
+	// Process the shortkey by searching the database
 
 	oldurl, err := dbConnection.findURLUsingShortkey(shortKey)
 	if err != nil {
@@ -218,7 +221,7 @@ func shortKeyHandler(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	logger.Debug("Found corresponding url", 
+	logger.Debug("Found corresponding url",
 		slog.String("shortkey", shortKey),
 		slog.String("url", oldurl),
 	)
@@ -237,7 +240,7 @@ func main() {
 	http.HandleFunc("/", indexPage)
 	http.HandleFunc("/CreateShortUrl", formSubmit)
 	http.HandleFunc("/sk/", shortKeyHandler)
-	
+
 	// Start the HTTP server and log any errors using structured logging
 	err := http.ListenAndServe(fmt.Sprintf(":%s", SERVER_PORT), nil)
 	if err != nil {
