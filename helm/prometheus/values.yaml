@@ -12,3 +12,8 @@ alertmanager:
 grafana:
   enabled: true
   adminPassword: "admin"
+  sidecar:
+    dashboards:
+      enabled: true
+      label: grafana_dashboard
+      labelValue: "true"

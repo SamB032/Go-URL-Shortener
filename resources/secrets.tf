@@ -1,9 +1,8 @@
-resource "random_id" "username" {
+resource "random_id" "database-username" {
   byte_length = 8
 }
 
-# Generate a random password
-resource "random_password" "password" {
+resource "random_password" "database-password" {
   length  = 16
   special = true
   upper   = true
@@ -25,7 +24,7 @@ resource "kubernetes_secret" "database" {
 }
 
 # Secrets for App
-resource "kubernetes_secret" "url-app" {
+resource "kubernetes_secret" "app" {
   metadata {
     name      = "postgres-secret"
     namespace = kubernetes_namespace.namespace["url-app"].metadata[0].name

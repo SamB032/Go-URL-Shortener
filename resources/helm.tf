@@ -1,5 +1,4 @@
 ## Core app services
-
 resource "helm_release" "database" {
   name  = "postgres-database"
   chart = "../helm/postgres-database"
@@ -26,7 +25,7 @@ resource "helm_release" "traefik" {
   chart      = "traefik"
   version    = "35.0.1"
   
-  namespace = "default"
+  namespace = "kube-system"
   values = [
     file("../helm/traefik-reverse-proxy/values.yaml")
   ]
@@ -38,6 +37,23 @@ resource "helm_release" "prometheus" {
   repository = "https://prometheus-community.github.io/helm-charts"
   chart      = "kube-prometheus-stack"
 
-  namespace  = "monitoring"
+  namespace  = kubernetes_namespace.namespace["monitoring"].metadata[0].name
   values = [file("../helm/prometheus/values.yaml")]
+}
+
+
+resource "kubernetes_config_map" "grafana_dashboards" {
+  for_each = { for file in fileset("${path.module}/dashboards", "*.json") : file => file }
+
+  metadata {
+    name      = replace(each.key, ".json", "")
+    namespace = kubernetes_namespace.namespace["monitoring"].metadata[0].name
+    labels = {
+      grafana_dashboard = "true"
+    }
+  }
+
+  data = {
+    "${each.key}" = file("${path.module}/dashboards/${each.key}")
+  }
 }
