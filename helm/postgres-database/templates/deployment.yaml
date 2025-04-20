@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  namespace: {{ .Values.namespace | quote }}
+  namespace: {{ .Release.Namespace | quote }}
   name: {{ include "postgres-database.fullname" . }}
   labels:
     {{- include "postgres-database.labels" . | nindent 4 }}
@@ -12,7 +12,7 @@ spec:
       {{- include "postgres-database.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      namespace: {{ .Values.namespace | quote }}
+      namespace: {{ .Release.Namespace | quote }}
       annotations:
         {{- toYaml .Values.podAnnotations | nindent 8 }}
       labels:

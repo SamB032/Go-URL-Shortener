@@ -8,8 +8,6 @@ image:
   pullPolicy: IfNotPresent
   tag: "main"
 
-namespace: "url-app"
-
 # This section builds out the service account more information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/
 serviceAccount:
   create: true
