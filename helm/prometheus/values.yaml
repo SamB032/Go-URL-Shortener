@@ -1,0 +1,14 @@
+prometheus:
+  prometheusSpec:
+    replicas: 1
+    serviceMonitorSelectorNilUsesHelmValues: false
+    serviceMonitorSelector: {}
+
+alertmanager:
+  alertmanagerSpec:
+    replicas: 1
+    externalUrl: "http://alertmanager.monitoring.svc.cluster.local"
+
+grafana:
+  enabled: true
+  adminPassword: "admin"

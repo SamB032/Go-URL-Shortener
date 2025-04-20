@@ -1,0 +1,31 @@
+namespace: default
+
+# helm template traefik traefik/traefik -f values.yaml --debug
+
+metrics:
+  prometheus:
+    enabled: true
+    entryPoint: metrics
+    addEntryPointsLabels: true
+    addRoutersLabels: true
+    addServicesLabels: true
+    serviceMonitor:
+      enabled: true
+      namespace: monitoring
+      jobLabel: "my-job"
+      interval: "30s"
+      scrapeTimeout: "10s"
+
+ingressRoute:
+  app:
+    enabled: true
+    matchRule: "Host(`localhost`)"
+    entryPoints:
+      - web
+    services:
+      - name: url-app
+        port: 8000
+
+entryPoints:
+  metrics:
+    address: :9100
