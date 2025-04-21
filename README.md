@@ -16,9 +16,20 @@ Go http URL app manages the core logic of the whole application. It provides use
 The Postgres database is used to store the shortkey to URL mappings. This is read the Go http server pods. We have replica on standby is we encounter any issues with the current Postgres pod.
 
 ## Observability
+The observability stack is implemented using the `kube-prometheus-stack` Helm chart. It deploys Alertmanager, the Prometheus server, and a Grafana instance within the `monitoring` namespace. 
+
+Prometheus scrapes metrics from Kubernetes nodes, the Traefik ingress controller, and application containers into a centralised query server. This is queried by Grafana providing dashboards on Traefik ingress, resource usage and SLI/SLO.
+
+Logs and node-level metrics are collected using Promtail, which ships them to Loki for storage and querying. This is used in the *logs* Grafana dashboard, to provide real-time insight into the application.
+
+Future work my entail custom metrics for `url-app` container and configuring the Alertmanager for a production environment.
 
 ### (Option 1) Installing using Terraform
-Terraform is a declaritive configuration file that allows for resources to be provisioned. A **helm** and **kubernetes** prprovider has been provisioned using kube config inside `~/.kube/config`. Note: Install `terraform` binary before proceeding.
+Terraform is a declaritive configuration file that allows for resources to be provisioned. A **helm** and **kubernetes** prprovider has been provisioned using kube config inside `~/.kube/config`. 
+
+Note:
+ - Install `terraform` binary before proceeding.
+ - This will apply the observability stack as mentioned above
 
 To Apply the terraform config:
 1. Clone the repository
