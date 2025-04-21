@@ -1,0 +1,39 @@
+# helm template traefik traefik/traefik -f values.yaml --debug
+
+providers:
+  kubernetesCRD:
+    enabled: true
+    allowCrossNamespace: true
+
+metrics:
+  prometheus:
+    enabled: true
+    entryPoint: metrics
+    addEntryPointsLabels: true
+    addRoutersLabels: true
+    addServicesLabels: true
+    serviceMonitor:
+      enabled: true
+      namespace: monitoring
+      jobLabel: "traefik-job"
+      interval: "30s"
+      scrapeTimeout: "10s"
+
+ingressRoute:
+  dashboard:
+    enabled: false
+  app:
+    enabled: true
+    matchRule: "Host(`localhost`) && PathPrefix(`/`)"
+    entryPoints:
+      - web
+      - websecure
+    services:
+      - name: url-app
+        kind: Service
+        port: 8000
+        namespace: url-app
+
+entryPoints:
+  metrics:
+    address: :9100

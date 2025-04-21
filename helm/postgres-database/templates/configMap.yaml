@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: postgres-init-script
-  namespace: {{ .Values.namespace | quote }}
+  namespace: {{ .Release.Namespace | quote }}
 data:
   # Would like to avoid hard coding sql query. Need to somehow grab from migtations/init.sql
   create_tables.sql: |

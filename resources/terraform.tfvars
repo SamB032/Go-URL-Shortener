@@ -1,1 +1,1 @@
-namespaces = ["database", "url-app"]
+namespaces = ["database", "url-app", "monitoring"]
