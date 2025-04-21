@@ -1,8 +1,8 @@
-resource "random_id" "database-username" {
+resource "random_id" "username" {
   byte_length = 8
 }
 
-resource "random_password" "database-password" {
+resource "random_password" "password" {
   length  = 16
   special = true
   upper   = true

@@ -41,6 +41,17 @@ resource "helm_release" "prometheus" {
   values = [file("../helm/prometheus/values.yaml")]
 }
 
+resource "helm_release" "loki" {
+  name       = "loki"
+  repository = "https://grafana.github.io/helm-charts"
+  chart      = "loki-stack"
+  version    = "2.9.10"
+
+  namespace = kubernetes_namespace.namespace["monitoring"].metadata[0].name
+  values = [
+    file("../helm/loki/values.yaml")
+  ]
+}
 
 resource "kubernetes_config_map" "grafana_dashboards" {
   for_each = { for file in fileset("${path.module}/dashboards", "*.json") : file => file }
