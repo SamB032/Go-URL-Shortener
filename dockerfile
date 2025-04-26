@@ -1,17 +1,14 @@
-# Start from the latest golang base image
 FROM golang:1.23-alpine
 
-# Set the Current Working Directory inside the container
 WORKDIR /app
 
-# Copy the source from the current directory to the Working Directory inside the container
-COPY /src .
+COPY go.mod go.sum ./
+RUN go mod download
 
-# Build the Go app
-RUN go build -o main .
+COPY . .
 
-# Expose port 8080 to the outside world
+RUN go build -o main ./cmd/url-shortener/
+
 EXPOSE 8000
 
-# Command to run the executable
 CMD ["./main"]

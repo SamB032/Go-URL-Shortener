@@ -1,4 +1,4 @@
-package main
+package database
 
 import (
 	_ "github.com/lib/pq"
@@ -8,7 +8,7 @@ import (
 )
 
 // Checks whether a shortkey already exists in the database
-func (db *DBConnection) checkShortkeyExists(shortKey string) (bool, error) {
+func (db *Connection) CheckShortkeyExists(shortKey string) (bool, error) {
 	query := `SELECT EXISTS(SELECT 1 FROM url WHERE shortkey = $1)`
 
 	var exists bool
@@ -20,7 +20,7 @@ func (db *DBConnection) checkShortkeyExists(shortKey string) (bool, error) {
 }
 
 // Check whether a URL already exists in the database
-func (db *DBConnection) checkIfURLExists(url string) (bool, error) {
+func (db *Connection) CheckIfURLExists(url string) (bool, error) {
 	query := `SELECT EXISTS(SELECT 1 from URL where old_url = $1)`
 
 	var exists bool
@@ -32,7 +32,7 @@ func (db *DBConnection) checkIfURLExists(url string) (bool, error) {
 }
 
 // Adds a mapping shortkey <-> url to the database
-func (db *DBConnection) addRecord(oldurl string, shortKey string) error {
+func (db *Connection) AddRecord(oldurl string, shortKey string) error {
 	timestamp := time.Now() //Record timestamp of when record is added
 
 	_, err := db.connection.Exec(`INSERT INTO url (created_at, old_url, shortkey) VALUES ($1, $2, $3)`, timestamp, oldurl, shortKey)
@@ -44,7 +44,7 @@ func (db *DBConnection) addRecord(oldurl string, shortKey string) error {
 }
 
 // Find the corresponding short url when given a shortKey
-func (db *DBConnection) findURLUsingShortkey(shortKey string) (string, error) {
+func (db *Connection) FindURLUsingShortkey(shortKey string) (string, error) {
 	var oldURL string
 
 	query := "SELECT old_url FROM url WHERE shortkey = $1"
@@ -56,7 +56,7 @@ func (db *DBConnection) findURLUsingShortkey(shortKey string) (string, error) {
 }
 
 // Find shortkey when given the url
-func (db *DBConnection) findShortkeyUsingURL(url string) (string, error) {
+func (db *Connection) FindShortkeyUsingURL(url string) (string, error) {
 	var shortKey string
 
 	query := "SELECT shortkey FROM url WHERE old_url = $1"
