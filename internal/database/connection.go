@@ -8,14 +8,6 @@ import (
 	"log/slog"
 )
 
-type postgresData struct {
-	host     string
-	port     string
-	user     string
-	password string
-	dbName   string
-}
-
 type Connection struct {
 	connection *sql.DB
 }
