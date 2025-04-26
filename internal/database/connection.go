@@ -53,7 +53,7 @@ func ConnectToDatabase(pgHost, pgPort, pgUser, pgPassword, pgName string, logger
 	// Make a ping to the database to see if its alive
 	err = db.Ping()
 	if err != nil {
-		logger.Info("Failed to connect to ping database",
+		logger.Error("Failed to connect to ping database",
 			slog.String("host", pgHost),
 			slog.String("DBName", pgName),
 			slog.String("Error", err.Error()),
@@ -61,7 +61,7 @@ func ConnectToDatabase(pgHost, pgPort, pgUser, pgPassword, pgName string, logger
 		return nil
 	}
 
-	logger.Info("Successfully connect to the database",
+	logger.Error("Successfully connect to the database",
 		slog.String("host", pgHost),
 		slog.String("DBName", pgName),
 	)

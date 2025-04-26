@@ -14,7 +14,7 @@ func (s *Server) indexPage(writer http.ResponseWriter, request *http.Request) {
 		slog.String("Method", request.Method),
 		slog.String("Address", request.RemoteAddr),
 	)
-	http.ServeFile(writer, request, "template/index.html")
+	http.ServeFile(writer, request, s.templatesDir + "index.html")
 }
 
 // Handle the form submit in the page
@@ -110,10 +110,10 @@ func (s *Server) formSubmit(writer http.ResponseWriter, request *http.Request) {
 		}
 
 		// Open the newurl html file and use it as a template
-		tmpl, err := template.ParseFiles("template/newurl.html")
+		tmpl, err := template.ParseFiles(s.templatesDir + "newurl.html")
 		if err != nil {
 			s.logger.Error("Unable to parse template",
-				slog.String("template", "tempalte/newurl.html"),
+				slog.String("template", s.templatesDir + "newurl.html"),
 				slog.String("Error", err.Error()),
 				slog.Int("StatusCode", http.StatusInternalServerError),
 			)

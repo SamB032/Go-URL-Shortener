@@ -19,6 +19,7 @@ type EnvironmentVariables struct {
 	PostgresPassword string
 	PostgresUser     string
 	PostgresDBName   string
+	TemplatesDir     string
 }
 
 func getEnvironmentVariables() *EnvironmentVariables {
@@ -30,6 +31,7 @@ func getEnvironmentVariables() *EnvironmentVariables {
 		PostgresUser:     os.Getenv("POSTGRES_USER"),
 		PostgresPassword: os.Getenv("POSTGRES_PASSWORD"),
 		PostgresDBName:   os.Getenv("POSTGRES_DB"),
+		TemplatesDir:     os.Getenv("TEMPLATES_DIR"),
 	}
 }
 
@@ -77,6 +79,9 @@ func main() {
 		environmentVariables.PostgresDBName,
 		logger,
 	)
+	if database == nil {
+		os.Exit(1)
+	}
 
 	// Start server
 	server := server.NewServer(
@@ -85,6 +90,7 @@ func main() {
 		database,
 		validator.ValidateURL,
 		shortkey.CreateShortKey,
+		environmentVariables.TemplatesDir,
 	)
 
 	err := server.Start(environmentVariables.ServerPort)

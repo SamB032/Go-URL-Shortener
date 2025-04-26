@@ -17,10 +17,11 @@ type Server struct {
 	validateURL    ValidateUrlFunc
 	createShortKey CreateShotKeyFunc
 	redirectURL    string
+	templatesDir   string
 	mux            *http.ServeMux
 }
 
-func NewServer(serverPort string, logger *slog.Logger, db database.DBInterface, validateURL ValidateUrlFunc, createShortKey CreateShotKeyFunc) *Server {
+func NewServer(serverPort string, logger *slog.Logger, db database.DBInterface, validateURL ValidateUrlFunc, createShortKey CreateShotKeyFunc, templatesDir string) *Server {
 	mux := http.NewServeMux()
 
 	server := &Server{
@@ -29,6 +30,7 @@ func NewServer(serverPort string, logger *slog.Logger, db database.DBInterface, 
 		validateURL:    validateURL,
 		createShortKey: createShortKey,
 		redirectURL:    fmt.Sprintf("localhost:%s/sk/", serverPort),
+		templatesDir:   templatesDir,
 		mux:            mux,
 	}
 
