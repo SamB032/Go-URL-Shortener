@@ -1,16 +1,24 @@
-package main
+package shortkey
 
-import "math/rand"
+import (
+	"math/rand"
+
+	database "github.com/SamB032/Go-URL-Shortener/internal/database"
+)
 
 const URL_CHARSET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 const URL_LENGTH = 5
 
+type ShortKeyInterface interface {
+	GenerateShortKey(dbConnection database.DBInterface) (string, error)
+}
+
 // Generate a shortkey, return only if one is found that does not already exists
-func createShortKey() (string, error) {
+func CreateShortKey(dbConnection database.DBInterface) (string, error) {
 	var newurl string
 	for {
 		newurl = generateShortKey()
-		exists, err := dbConnection.checkShortkeyExists(newurl)
+		exists, err := dbConnection.CheckShortkeyExists(newurl)
 		if err != nil {
 			return "", err
 		} else if !exists {

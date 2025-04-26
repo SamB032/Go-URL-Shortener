@@ -64,6 +64,12 @@ spec:
                 secretKeyRef:
                   name: postgres-secret
                   key: POSTGRES_DB
+            - name: LOGGING_LEVEL
+              value: "INFO"
+            - name: "TEMPLATES_DIR"
+              value: "templates/"
+            - name: "SERVER_PORT"
+              value: "8000"
           {{- with .Values.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}
