@@ -7,8 +7,6 @@ import (
 
 	database "github.com/SamB032/Go-URL-Shortener/internal/database"
 	server "github.com/SamB032/Go-URL-Shortener/internal/httpServer"
-	shortkey "github.com/SamB032/Go-URL-Shortener/internal/shortKey"
-	validator "github.com/SamB032/Go-URL-Shortener/internal/validator"
 )
 
 type EnvironmentVariables struct {
@@ -88,8 +86,6 @@ func main() {
 		environmentVariables.ServerPort,
 		logger,
 		database,
-		validator.ValidateURL,
-		shortkey.CreateShortKey,
 		environmentVariables.TemplatesDir,
 	)
 

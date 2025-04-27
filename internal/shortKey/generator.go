@@ -9,10 +9,6 @@ import (
 const URL_CHARSET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 const URL_LENGTH = 5
 
-type ShortKeyInterface interface {
-	GenerateShortKey(dbConnection database.DBInterface) (string, error)
-}
-
 // Generate a shortkey, return only if one is found that does not already exists
 func CreateShortKey(dbConnection database.DBInterface) (string, error) {
 	var newurl string
