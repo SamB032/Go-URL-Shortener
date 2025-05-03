@@ -8,9 +8,7 @@ import (
 	"log/slog"
 )
 
-type Connection struct {
-	connection *sql.DB
-}
+var SqlOpen = sql.Open
 
 type DBInterface interface {
 	CheckShortkeyExists(shortKey string) (bool, error)
@@ -20,43 +18,40 @@ type DBInterface interface {
 	FindShortkeyUsingURL(url string) (string, error)
 }
 
+type Connection struct {
+	Connection *sql.DB
+}
+
+func NewConnection(db *sql.DB, logger *slog.Logger, host, dbname string) *Connection {
+	if err := db.Ping(); err != nil {
+		logger.Error("Failed to ping database",
+			slog.String("host", host),
+			slog.String("DBName", dbname),
+			slog.String("Error", err.Error()),
+		)
+		db.Close()
+		return nil
+	}
+
+	logger.Info("Successfully connected to the database",
+		slog.String("host", host),
+		slog.String("DBName", dbname),
+	)
+
+	return &Connection{Connection: db}
+}
+
 func ConnectToDatabase(pgHost, pgPort, pgUser, pgPassword, pgName string, logger *slog.Logger) *Connection {
 	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		pgHost, pgPort, pgUser, pgPassword, pgName)
 
-	//Initalise a connection to the database
-	db, err := sql.Open("postgres", psqlInfo)
+	db, err := SqlOpen("postgres", psqlInfo)
 	if err != nil {
-		logger.Error("Failed to connect to database",
-			slog.String("host", pgHost),
-			slog.String("DBName", pgName),
+		logger.Error("Failed to open connection",
 			slog.String("Error", err.Error()),
 		)
 		return nil
 	}
 
-	// Ensure the connection is properly closed on error
-	defer func() {
-		if err != nil {
-			db.Close()
-		}
-	}()
-
-	// Make a ping to the database to see if its alive
-	err = db.Ping()
-	if err != nil {
-		logger.Error("Failed to connect to ping database",
-			slog.String("host", pgHost),
-			slog.String("DBName", pgName),
-			slog.String("Error", err.Error()),
-		)
-		return nil
-	}
-
-	logger.Error("Successfully connect to the database",
-		slog.String("host", pgHost),
-		slog.String("DBName", pgName),
-	)
-
-	return &Connection{connection: db}
+	return NewConnection(db, logger, pgHost, pgName)
 }
