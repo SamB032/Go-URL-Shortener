@@ -83,3 +83,4 @@ jobs:
           push_on_build: true
           context: .
           tags: 'latest'
+          github_token: ${{ secrets.GITHUB_TOKEN }}
