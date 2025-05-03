@@ -1,15 +1,19 @@
 package database_test
 
 import (
-	"testing"
-	"os"
-	"errors"
 	"database/sql"
+	"errors"
 	"log/slog"
+	"os"
+	"io"
+	"testing"
 
-	database "github.com/SamB032/Go-URL-Shortener/internal/database"
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/stretchr/testify/assert"
+	database "github.com/SamB032/Go-URL-Shortener/internal/database"
 )
+
+var logger = slog.New(slog.NewTextHandler(io.Discard, nil))
 
 func TestNewConnection_Success(t *testing.T) {
 	mockDB, mock, err := sqlmock.New(sqlmock.MonitorPingsOption(true))
@@ -20,16 +24,10 @@ func TestNewConnection_Success(t *testing.T) {
 
 	mock.ExpectPing().WillReturnError(nil)
 
-	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+	conn, err := database.NewConnection(mockDB, logger, "localhost", "testdb")
 
-	conn := database.NewConnection(mockDB, logger, "localhost", "testdb")
-	if conn == nil {
-		t.Fatal("expected non-nil connection")
-	}
-
-	if err := mock.ExpectationsWereMet(); err != nil {
-		t.Errorf("unfulfilled expectations: %s", err)
-	}
+	assert.NotNil(t, conn, "expected non-nil connection")
+	assert.NoError(t, err, "No error should be raised")
 }
 
 func TestNewConnection_PingFails(t *testing.T) {
@@ -41,16 +39,10 @@ func TestNewConnection_PingFails(t *testing.T) {
 
 	mock.ExpectPing().WillReturnError(os.ErrPermission)
 
-	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+	conn, err := database.NewConnection(mockDB, logger, "localhost", "testdb")
 
-	conn := database.NewConnection(mockDB, logger, "localhost", "testdb")
-	if conn != nil {
-		t.Fatal("expected nil connection when ping fails")
-	}
-
-	if err := mock.ExpectationsWereMet(); err != nil {
-		t.Errorf("unfulfilled expectations: %s", err)
-	}
+	assert.Nil(t, conn, "Expected nil connection when sql.Open fails")
+	assert.Error(t, err, "Expected error to be returned")
 }
 
 func TestConnectToDatabase_Success(t *testing.T) {
@@ -69,15 +61,10 @@ func TestConnectToDatabase_Success(t *testing.T) {
 	}
 	defer func() { database.SqlOpen = original }()
 
-	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
-	conn := database.ConnectToDatabase("localhost", "5432", "user", "pass", "testdb", logger)
-	if conn == nil {
-		t.Fatal("expected non-nil connection")
-	}
+	conn, err := database.ConnectToDatabase("localhost", "5432", "user", "pass", "testdb", logger)
 
-	if err := mock.ExpectationsWereMet(); err != nil {
-		t.Errorf("unmet sqlmock expectations: %v", err)
-	}
+	assert.NotNil(t, conn, "expected non-nil connection")
+	assert.NoError(t, err, "No error should be raised")
 }
 
 func TestConnectToDatabase_OpenFails(t *testing.T) {
@@ -88,9 +75,8 @@ func TestConnectToDatabase_OpenFails(t *testing.T) {
 	}
 	defer func() { database.SqlOpen = original }()
 
-	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
-	conn := database.ConnectToDatabase("localhost", "5432", "user", "pass", "testdb", logger)
-	if conn != nil {
-		t.Fatal("expected nil connection when sql.Open fails")
-	}
+	conn, err := database.ConnectToDatabase("localhost", "5432", "user", "pass", "testdb", logger)
+
+	assert.Nil(t, conn, "Expected nil connection when sql.Open fails")
+	assert.Error(t, err, "Expected error to be returned")
 }

@@ -69,7 +69,7 @@ func main() {
 	logger := setupLogger(environmentVariables.LoggingLevel)
 
 	// Initialise Database
-	database := database.ConnectToDatabase(
+	database, dbErr := database.ConnectToDatabase(
 		environmentVariables.PostgresHost,
 		environmentVariables.PostgresPort,
 		environmentVariables.PostgresUser,
@@ -77,7 +77,7 @@ func main() {
 		environmentVariables.PostgresDBName,
 		logger,
 	)
-	if database == nil {
+	if dbErr != nil {
 		os.Exit(1)
 	}
 

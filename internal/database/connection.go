@@ -22,7 +22,7 @@ type Connection struct {
 	Connection *sql.DB
 }
 
-func NewConnection(db *sql.DB, logger *slog.Logger, host, dbname string) *Connection {
+func NewConnection(db *sql.DB, logger *slog.Logger, host, dbname string) (*Connection, error){
 	if err := db.Ping(); err != nil {
 		logger.Error("Failed to ping database",
 			slog.String("host", host),
@@ -30,7 +30,7 @@ func NewConnection(db *sql.DB, logger *slog.Logger, host, dbname string) *Connec
 			slog.String("Error", err.Error()),
 		)
 		db.Close()
-		return nil
+		return nil, err
 	}
 
 	logger.Info("Successfully connected to the database",
@@ -38,10 +38,10 @@ func NewConnection(db *sql.DB, logger *slog.Logger, host, dbname string) *Connec
 		slog.String("DBName", dbname),
 	)
 
-	return &Connection{Connection: db}
+	return &Connection{Connection: db}, nil
 }
 
-func ConnectToDatabase(pgHost, pgPort, pgUser, pgPassword, pgName string, logger *slog.Logger) *Connection {
+func ConnectToDatabase(pgHost, pgPort, pgUser, pgPassword, pgName string, logger *slog.Logger) (*Connection, error) {
 	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		pgHost, pgPort, pgUser, pgPassword, pgName)
 
@@ -50,7 +50,7 @@ func ConnectToDatabase(pgHost, pgPort, pgUser, pgPassword, pgName string, logger
 		logger.Error("Failed to open connection",
 			slog.String("Error", err.Error()),
 		)
-		return nil
+		return nil, err
 	}
 
 	return NewConnection(db, logger, pgHost, pgName)

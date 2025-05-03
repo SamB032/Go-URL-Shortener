@@ -1,4 +1,4 @@
-package urlServer
+package url_server
 
 import (
 	"html/template"

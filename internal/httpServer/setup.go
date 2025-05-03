@@ -1,4 +1,4 @@
-package urlServer
+package url_server
 
 import (
 	"fmt"
@@ -32,6 +32,10 @@ func NewServer(serverPort string, logger *slog.Logger, db database.DBInterface, 
 	mux.HandleFunc("/sk/", server.shortKeyHandler)
 
 	return server
+}
+
+func (s *Server) Handler() http.Handler {
+	return s.mux
 }
 
 func (s *Server) Start(serverPort string) error {
