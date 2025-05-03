@@ -20,7 +20,7 @@ func TestNewConnection_Success(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to create sqlmock: %v", err)
 	}
-	defer mockDB.Close()
+	defer mockDB.Close() //nolint:errcheck
 
 	mock.ExpectPing().WillReturnError(nil)
 
@@ -35,7 +35,7 @@ func TestNewConnection_PingFails(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to create sqlmock: %v", err)
 	}
-	defer mockDB.Close()
+	defer mockDB.Close() //nolint:errcheck
 
 	mock.ExpectPing().WillReturnError(os.ErrPermission)
 
@@ -50,7 +50,7 @@ func TestConnectToDatabase_Success(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to create sqlmock: %v", err)
 	}
-	defer mockDB.Close()
+	defer mockDB.Close() //nolint:errcheck
 
 	mock.ExpectPing()
 

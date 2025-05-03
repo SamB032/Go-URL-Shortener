@@ -27,7 +27,7 @@ func TestCheckShortkeyExists(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			db, mock, _ := sqlmock.New()
-			defer db.Close()
+			defer db.Close() //nolint:errcheck
 			conn := &database.Connection{Connection: db}
 
 			if tc.mockError != nil {
@@ -63,7 +63,7 @@ func TestCheckIfURLExists(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			db, mock, _ := sqlmock.New()
-			defer db.Close()
+			defer db.Close() //nolint:errcheck
 			conn := &database.Connection{Connection: db}
 
 			if tc.mockError != nil {
@@ -96,7 +96,7 @@ func TestAddRecord(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			db, mock, _ := sqlmock.New()
-			defer db.Close()
+			defer db.Close() //nolint:errcheck
 			conn := &database.Connection{Connection: db}
 
 			exec := mock.ExpectExec(`INSERT INTO url \(created_at, old_url, shortkey\) VALUES \(\$1, \$2, \$3\)`).WithArgs(sqlmock.AnyArg(), tc.url, tc.shortKey)
@@ -132,7 +132,7 @@ func TestFindURLUsingShortkey(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			db, mock, _ := sqlmock.New()
-			defer db.Close()
+			defer db.Close() //nolint:errcheck
 			conn := &database.Connection{Connection: db}
 
 			if tc.mockError != nil {
@@ -166,7 +166,7 @@ func TestFindShortkeyUsingURL(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			db, mock, _ := sqlmock.New()
-			defer db.Close()
+			defer db.Close() //nolint:errcheck
 			conn := &database.Connection{Connection: db}
 
 			if tc.mockError != nil {

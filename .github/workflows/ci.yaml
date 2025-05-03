@@ -70,13 +70,13 @@ jobs:
 
   build-and-push-image:
     runs-on: ubuntu-latest
-
+    needs: go_tests
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Build and Push
-        uses: "./.github/actions/docker-build/action.yaml"
+        uses: "./.github/actions/docker-build/action.yaml@unit-tests"
         with:
           registry: ghcr.io
           image_name: ${{ github.repository }}

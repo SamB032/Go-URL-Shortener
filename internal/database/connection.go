@@ -29,8 +29,7 @@ func NewConnection(db *sql.DB, logger *slog.Logger, host, dbname string) (*Conne
 			slog.String("DBName", dbname),
 			slog.String("Error", err.Error()),
 		)
-		db.Close()
-		return nil, err
+		return nil, db.Close()
 	}
 
 	logger.Info("Successfully connected to the database",
