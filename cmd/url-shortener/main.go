@@ -7,8 +7,6 @@ import (
 
 	database "github.com/SamB032/Go-URL-Shortener/internal/database"
 	server "github.com/SamB032/Go-URL-Shortener/internal/httpServer"
-	shortkey "github.com/SamB032/Go-URL-Shortener/internal/shortKey"
-	validator "github.com/SamB032/Go-URL-Shortener/internal/validator"
 )
 
 type EnvironmentVariables struct {
@@ -71,7 +69,7 @@ func main() {
 	logger := setupLogger(environmentVariables.LoggingLevel)
 
 	// Initialise Database
-	database := database.ConnectToDatabase(
+	database, dbErr := database.ConnectToDatabase(
 		environmentVariables.PostgresHost,
 		environmentVariables.PostgresPort,
 		environmentVariables.PostgresUser,
@@ -79,7 +77,7 @@ func main() {
 		environmentVariables.PostgresDBName,
 		logger,
 	)
-	if database == nil {
+	if dbErr != nil {
 		os.Exit(1)
 	}
 
@@ -88,8 +86,6 @@ func main() {
 		environmentVariables.ServerPort,
 		logger,
 		database,
-		validator.ValidateURL,
-		shortkey.CreateShortKey,
 		environmentVariables.TemplatesDir,
 	)
 

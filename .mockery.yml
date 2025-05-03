@@ -1,0 +1,10 @@
+filename: "mock_{{.InterfaceNameSnake}}.go"
+dir: "mocks"
+mockname: "Mock{{.InterfaceNameCamel}}"
+outpkg: mocks
+with-expecter: true
+
+packages:
+  github.com/SamB032/Go-URL-Shortener/internal/database:
+    config:
+      all: true

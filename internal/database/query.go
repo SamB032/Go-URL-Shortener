@@ -12,7 +12,7 @@ func (db *Connection) CheckShortkeyExists(shortKey string) (bool, error) {
 	query := `SELECT EXISTS(SELECT 1 FROM url WHERE shortkey = $1)`
 
 	var exists bool
-	err := db.connection.QueryRow(query, shortKey).Scan(&exists)
+	err := db.Connection.QueryRow(query, shortKey).Scan(&exists)
 	if err != nil {
 		return false, fmt.Errorf("error executing query: %v", err)
 	}
@@ -24,7 +24,7 @@ func (db *Connection) CheckIfURLExists(url string) (bool, error) {
 	query := `SELECT EXISTS(SELECT 1 from URL where old_url = $1)`
 
 	var exists bool
-	err := db.connection.QueryRow(query, url).Scan(&exists)
+	err := db.Connection.QueryRow(query, url).Scan(&exists)
 	if err != nil {
 		return false, err
 	}
@@ -35,7 +35,7 @@ func (db *Connection) CheckIfURLExists(url string) (bool, error) {
 func (db *Connection) AddRecord(oldurl string, shortKey string) error {
 	timestamp := time.Now() //Record timestamp of when record is added
 
-	_, err := db.connection.Exec(`INSERT INTO url (created_at, old_url, shortkey) VALUES ($1, $2, $3)`, timestamp, oldurl, shortKey)
+	_, err := db.Connection.Exec(`INSERT INTO url (created_at, old_url, shortkey) VALUES ($1, $2, $3)`, timestamp, oldurl, shortKey)
 
 	if err != nil {
 		return err
@@ -48,7 +48,7 @@ func (db *Connection) FindURLUsingShortkey(shortKey string) (string, error) {
 	var oldURL string
 
 	query := "SELECT old_url FROM url WHERE shortkey = $1"
-	err := db.connection.QueryRow(query, shortKey).Scan(&oldURL)
+	err := db.Connection.QueryRow(query, shortKey).Scan(&oldURL)
 	if err != nil {
 		return "", err
 	}
@@ -60,7 +60,7 @@ func (db *Connection) FindShortkeyUsingURL(url string) (string, error) {
 	var shortKey string
 
 	query := "SELECT shortkey FROM url WHERE old_url = $1"
-	err := db.connection.QueryRow(query, url).Scan(&shortKey)
+	err := db.Connection.QueryRow(query, url).Scan(&shortKey)
 	if err != nil {
 		return "", err
 	}

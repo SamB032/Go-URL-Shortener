@@ -9,15 +9,11 @@ import (
 const URL_CHARSET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 const URL_LENGTH = 5
 
-type ShortKeyInterface interface {
-	GenerateShortKey(dbConnection database.DBInterface) (string, error)
-}
-
 // Generate a shortkey, return only if one is found that does not already exists
 func CreateShortKey(dbConnection database.DBInterface) (string, error) {
 	var newurl string
 	for {
-		newurl = generateShortKey()
+		newurl = GenerateShortKey()
 		exists, err := dbConnection.CheckShortkeyExists(newurl)
 		if err != nil {
 			return "", err
@@ -28,7 +24,7 @@ func CreateShortKey(dbConnection database.DBInterface) (string, error) {
 }
 
 // Generates a random key of URL_LENGTH and contains URL_CHARSET
-func generateShortKey() string {
+func GenerateShortKey() string {
 	shortKey := make([]byte, URL_LENGTH)
 
 	for i := range shortKey {

@@ -1,10 +1,13 @@
-package urlServer
+package url_server
 
 import (
 	"html/template"
 	"log/slog"
 	"net/http"
 	"strings"
+
+	shortkey "github.com/SamB032/Go-URL-Shortener/internal/shortKey"
+	validate "github.com/SamB032/Go-URL-Shortener/internal/validator"
 )
 
 // Serve the main index page
@@ -42,7 +45,7 @@ func (s *Server) formSubmit(writer http.ResponseWriter, request *http.Request) {
 		oldurl := request.FormValue("enteredURL")
 
 		//Valite the input to see if its in a form of a url
-		valid, exists, err := s.validateURL(oldurl, s.database)
+		valid, exists, err := validate.ValidateURL(oldurl, s.database)
 		if err != nil {
 			s.logger.Error("Error validating url input",
 				slog.String("enteredURL", oldurl),
@@ -74,7 +77,7 @@ func (s *Server) formSubmit(writer http.ResponseWriter, request *http.Request) {
 				return
 			}
 		} else {
-			shortKey, err = s.createShortKey(s.database) //Generate new shortkey
+			shortKey, err = shortkey.CreateShortKey(s.database) //Generate new shortkey
 
 			if err != nil {
 				s.logger.Error("Unable to generate shortkey",

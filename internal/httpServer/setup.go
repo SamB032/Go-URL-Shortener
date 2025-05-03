@@ -1,4 +1,4 @@
-package urlServer
+package url_server
 
 import (
 	"fmt"
@@ -8,27 +8,20 @@ import (
 	database "github.com/SamB032/Go-URL-Shortener/internal/database"
 )
 
-type CreateShotKeyFunc func(dbConnection database.DBInterface) (string, error)
-type ValidateUrlFunc func(url string, db database.DBInterface) (bool, bool, error)
-
 type Server struct {
 	logger         *slog.Logger
 	database       database.DBInterface
-	validateURL    ValidateUrlFunc
-	createShortKey CreateShotKeyFunc
 	redirectURL    string
 	templatesDir   string
 	mux            *http.ServeMux
 }
 
-func NewServer(serverPort string, logger *slog.Logger, db database.DBInterface, validateURL ValidateUrlFunc, createShortKey CreateShotKeyFunc, templatesDir string) *Server {
+func NewServer(serverPort string, logger *slog.Logger, db database.DBInterface, templatesDir string) *Server {
 	mux := http.NewServeMux()
 
 	server := &Server{
 		logger:         logger,
 		database:       db,
-		validateURL:    validateURL,
-		createShortKey: createShortKey,
 		redirectURL:    fmt.Sprintf("localhost:%s/sk/", serverPort),
 		templatesDir:   templatesDir,
 		mux:            mux,
@@ -39,6 +32,10 @@ func NewServer(serverPort string, logger *slog.Logger, db database.DBInterface, 
 	mux.HandleFunc("/sk/", server.shortKeyHandler)
 
 	return server
+}
+
+func (s *Server) Handler() http.Handler {
+	return s.mux
 }
 
 func (s *Server) Start(serverPort string) error {

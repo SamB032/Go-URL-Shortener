@@ -1,0 +1,61 @@
+name: 'Docker Image CI'
+description: 'Builds and pushes a Docker image to GitHub Container Registry (ghcr.io)'
+inputs:
+  registry:
+    description: 'The container registry to use (default: ghcr.io)'
+    required: false
+    default: 'ghcr.io'
+  image_name:
+    description: 'The name of the Docker image (default: the repository name)'
+    required: false
+    default: '${{ github.repository }}'
+  push_on_build:
+    description: 'Whether to push the image after building (default: true)'
+    required: false
+    default: 'true'
+  context:
+    description: 'The Docker build context (default: current directory)'
+    required: false
+    default: '.'
+  tags:
+    description: 'Comma-separated list of tags for the Docker image (default: latest)'
+    required: false
+    default: 'latest'
+  github_token:
+    description: 'GitHub token for authenticating with the container registry'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Log in to the Container registry
+      uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+      with:
+        registry: ${{ inputs.registry }}
+        username: ${{ github.actor }}
+        password: ${{ inputs.github_token }}
+
+    - name: Extract metadata (tags, labels) for Docker
+      id: meta
+      uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+      with:
+        images: ${{ inputs.registry }}/${{ inputs.image_name }}
+    
+    - name: Build and push Docker image
+      id: push
+      uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
+      with:
+        context: ${{ inputs.context }}
+        push: ${{ inputs.push_on_build }}
+        tags: ${{ inputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+    
+    - name: Generate artifact attestation
+      uses: actions/attest-build-provenance@v1
+      with:
+        subject-name: ${{ inputs.registry }}/${{ inputs.image_name }}
+        subject-digest: ${{ steps.push.outputs.digest }}
+        push-to-registry: true
