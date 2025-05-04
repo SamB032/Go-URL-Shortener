@@ -43,6 +43,8 @@ runs:
       uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
       with:
         images: ${{ inputs.registry }}/${{ inputs.image_name }}
+        tags: |
+          type=raw,value=latest
     
     - name: Build and push Docker image
       id: push
