@@ -85,4 +85,5 @@ jobs:
           image_name: ${{ github.repository }}
           push_on_build: true
           context: .
-          tags: 'latest'
+          tags: 'latest,${{ github.sha }}'
+          github_token: ${{ secrets.GITHUB_TOKEN }}
