@@ -21,9 +21,6 @@ inputs:
     description: 'Comma-separated list of tags for the Docker image (default: latest)'
     required: false
     default: 'latest'
-  github_token:
-    description: 'GitHub token for authenticating with the container registry'
-    required: true
 
 runs:
   using: 'composite'
@@ -32,11 +29,11 @@ runs:
       uses: actions/checkout@v4
 
     - name: Log in to the Container registry
-      uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+      uses: docker/login-action@v3
       with:
         registry: ${{ inputs.registry }}
         username: ${{ github.actor }}
-        password: ${{ inputs.github_token }}
+        password: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Extract metadata (tags, labels) for Docker
       id: meta
@@ -46,7 +43,7 @@ runs:
     
     - name: Build and push Docker image
       id: push
-      uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
+      uses: docker/build-push-action@v3
       with:
         context: ${{ inputs.context }}
         push: ${{ inputs.push_on_build }}
@@ -59,4 +56,3 @@ runs:
         subject-name: ${{ inputs.registry }}/${{ inputs.image_name }}
         subject-digest: ${{ steps.push.outputs.digest }}
         push-to-registry: true
-
