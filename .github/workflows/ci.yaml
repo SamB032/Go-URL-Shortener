@@ -27,7 +27,7 @@ jobs:
         with:
           args: --redact
         env:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.github_token }}
 
   go-lint:
     runs-on: ubuntu-latest
