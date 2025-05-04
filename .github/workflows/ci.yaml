@@ -89,12 +89,17 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and Push
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+
+      - name: Build and Push Image with Attestation
         uses: ./.github/actions/docker-build
         with:
           registry: ghcr.io
           image_name: ${{ github.repository }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           push_on_build: true
-          context: .
-          tags: 'latest,${{ github.sha }}'
-          github_token: ${{ secrets.GITHUB_TOKEN }}
