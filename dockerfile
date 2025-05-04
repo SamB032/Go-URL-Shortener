@@ -1,14 +1,14 @@
-from golang:1.23-alpine as go-url-shortener
+FROM golang:1.23-alpine
 
-workdir /app
+WORKDIR /app
 
-copy go.mod go.sum ./
-run go mod download
+COPY go.mod go.sum ./
+RUN go mod download
 
-copy . .
+COPY . .
 
-run go build -o main ./cmd/url-shortener/
+RUN go build -o main ./cmd/url-shortener/
 
-expose 8000
+EXPOSE 8000
 
-cmd ["./main"]
+CMD ["./main"]
