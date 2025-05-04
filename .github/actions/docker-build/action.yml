@@ -31,7 +31,7 @@ runs:
     - name: Check token scopes
       shell: bash
       run: |
-        curl -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/user/packages
+        curl -H "Authorization: Bearer ${{ inputs.github_token }}" https://api.github.com/user/packages
 
     - name: Checkout repository
       uses: actions/checkout@v4
