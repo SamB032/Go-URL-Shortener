@@ -31,7 +31,11 @@ runs:
     - name: Check token scopes
       shell: bash
       run: |
-        curl -H "Authorization: Bearer ${{ inputs.github_token }}" https://api.github.com/user/packages
+        curl -L \
+          -H "Accept: application/vnd.github+json" \
+          -H "Authorization: Bearer ${{ inputs.github_token }}" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          "https://api.github.com/user/packages?package_type=container"
 
     - name: Checkout repository
       uses: actions/checkout@v4
