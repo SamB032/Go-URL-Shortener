@@ -29,7 +29,7 @@ func TestIndexPage(t *testing.T) {
 	server.IndexPage(w, req)
 
 	resp := w.Result()
-	defer resp.Body.Close()
+	defer resp.Body.Close() //nolint:errcheck
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 	assert.Equal(t, "text/html; charset=utf-8", resp.Header.Get("Content-Type"), "Unexpected Content type")
