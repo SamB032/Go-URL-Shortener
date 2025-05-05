@@ -24,7 +24,7 @@ resource "helm_release" "traefik" {
   repository = "https://helm.traefik.io/traefik"
   chart      = "traefik"
   version    = "35.0.1"
-  
+
   namespace = "kube-system"
   values = [
     file("../helm/traefik-reverse-proxy/values.yaml")
@@ -37,8 +37,8 @@ resource "helm_release" "prometheus" {
   repository = "https://prometheus-community.github.io/helm-charts"
   chart      = "kube-prometheus-stack"
 
-  namespace  = kubernetes_namespace.namespace["monitoring"].metadata[0].name
-  values = [file("../helm/prometheus/values.yaml")]
+  namespace = kubernetes_namespace.namespace["monitoring"].metadata[0].name
+  values    = [file("../helm/prometheus/values.yaml")]
 }
 
 resource "helm_release" "loki" {
