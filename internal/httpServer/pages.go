@@ -10,18 +10,23 @@ import (
 	validate "github.com/SamB032/Go-URL-Shortener/internal/validator"
 )
 
+type FormData struct {
+	GetURL string
+	NewURL string
+}
+
 // Serve the main index page
-func (s *Server) indexPage(writer http.ResponseWriter, request *http.Request) {
+func (s *Server) IndexPage(writer http.ResponseWriter, request *http.Request) {
 	s.logger.Debug("Received HTTP request",
 		slog.String("url", "/"),
 		slog.String("Method", request.Method),
 		slog.String("Address", request.RemoteAddr),
 	)
-	http.ServeFile(writer, request, s.templatesDir + "index.html")
+	http.ServeFile(writer, request, s.templatesDir+"index.html")
 }
 
 // Handle the form submit in the page
-func (s *Server) formSubmit(writer http.ResponseWriter, request *http.Request) {
+func (s *Server) FormSubmit(writer http.ResponseWriter, request *http.Request) {
 	s.logger.Debug("Received HTTP request",
 		slog.String("url", "/CreateShortUrl"),
 		slog.String("Method", request.Method),
@@ -52,6 +57,8 @@ func (s *Server) formSubmit(writer http.ResponseWriter, request *http.Request) {
 				slog.String("Error", err.Error()),
 				slog.Int("StatusCode", http.StatusInternalServerError),
 			)
+			http.Error(writer, "Unable to process form", http.StatusInternalServerError)
+			return
 		}
 
 		if !valid {
@@ -103,10 +110,7 @@ func (s *Server) formSubmit(writer http.ResponseWriter, request *http.Request) {
 		}
 
 		// Create a struct with the form data to pass to the template
-		type FormData struct {
-			GetURL string
-			NewURL string
-		}
+
 		data := FormData{
 			GetURL: s.redirectURL,
 			NewURL: shortKey,
@@ -116,7 +120,7 @@ func (s *Server) formSubmit(writer http.ResponseWriter, request *http.Request) {
 		tmpl, err := template.ParseFiles(s.templatesDir + "newurl.html")
 		if err != nil {
 			s.logger.Error("Unable to parse template",
-				slog.String("template", s.templatesDir + "newurl.html"),
+				slog.String("template", s.templatesDir+"newurl.html"),
 				slog.String("Error", err.Error()),
 				slog.Int("StatusCode", http.StatusInternalServerError),
 			)
@@ -150,7 +154,7 @@ func (s *Server) formSubmit(writer http.ResponseWriter, request *http.Request) {
 }
 
 // User provides a short key and redirect them to the corresponding url
-func (s *Server) shortKeyHandler(writer http.ResponseWriter, request *http.Request) {
+func (s *Server) ShortKeyHandler(writer http.ResponseWriter, request *http.Request) {
 	// Extract the shortkey from the URL
 	parts := strings.Split(request.URL.Path, "/")
 	if len(parts) < 3 {

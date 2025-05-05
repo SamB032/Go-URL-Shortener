@@ -22,7 +22,7 @@ type Connection struct {
 	Connection *sql.DB
 }
 
-func NewConnection(db *sql.DB, logger *slog.Logger, host, dbname string) (*Connection, error){
+func NewConnection(db *sql.DB, logger *slog.Logger, host, dbname string) (*Connection, error) {
 	if err := db.Ping(); err != nil {
 		logger.Error("Failed to ping database",
 			slog.String("host", host),

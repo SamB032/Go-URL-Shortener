@@ -45,7 +45,7 @@ func TestGenerateShortKey(t *testing.T) {
 	// Check length
 	assert.Len(t, generatedShortKey, shortkey.URL_LENGTH)
 
-	// Check for characters used 
+	// Check for characters used
 	matched, err := regexp.MatchString(`^[a-zA-Z0-9]+$`, generatedShortKey)
 	assert.NoError(t, err)
 	assert.True(t, matched, "string contains non-alphanumeric characters")
