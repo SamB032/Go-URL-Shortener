@@ -1,8 +1,8 @@
 package url_server_test
 
 import (
-	"log/slog"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"testing"

@@ -3,14 +3,14 @@ package database_test
 import (
 	"database/sql"
 	"errors"
+	"io"
 	"log/slog"
 	"os"
-	"io"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/stretchr/testify/assert"
 	database "github.com/SamB032/Go-URL-Shortener/internal/database"
+	"github.com/stretchr/testify/assert"
 )
 
 var logger = slog.New(slog.NewTextHandler(io.Discard, nil))

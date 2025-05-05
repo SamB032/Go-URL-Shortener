@@ -11,7 +11,7 @@ import (
 )
 
 func TestValidateURL(t *testing.T) {
-	
+
 	t.Run("Test with new valid URL", func(t *testing.T) {
 		urlInput := "https://github.com/SamB032/Go-URL-Shortener"
 

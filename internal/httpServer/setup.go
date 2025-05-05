@@ -9,27 +9,27 @@ import (
 )
 
 type Server struct {
-	logger         *slog.Logger
-	database       database.DBInterface
-	redirectURL    string
-	templatesDir   string
-	mux            *http.ServeMux
+	logger       *slog.Logger
+	database     database.DBInterface
+	redirectURL  string
+	templatesDir string
+	mux          *http.ServeMux
 }
 
 func NewServer(serverPort string, logger *slog.Logger, db database.DBInterface, templatesDir string) *Server {
 	mux := http.NewServeMux()
 
 	server := &Server{
-		logger:         logger,
-		database:       db,
-		redirectURL:    fmt.Sprintf("localhost:%s/sk/", serverPort),
-		templatesDir:   templatesDir,
-		mux:            mux,
+		logger:       logger,
+		database:     db,
+		redirectURL:  fmt.Sprintf("localhost:%s/sk/", serverPort),
+		templatesDir: templatesDir,
+		mux:          mux,
 	}
 
-	mux.HandleFunc("/", server.indexPage)
-	mux.HandleFunc("/CreateShortUrl", server.formSubmit)
-	mux.HandleFunc("/sk/", server.shortKeyHandler)
+	mux.HandleFunc("/", server.IndexPage)
+	mux.HandleFunc("/CreateShortUrl", server.FormSubmit)
+	mux.HandleFunc("/sk/", server.ShortKeyHandler)
 
 	return server
 }
