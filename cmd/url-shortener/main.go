@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log/slog"
 	"os"
 	"strings"
@@ -18,6 +19,7 @@ type EnvironmentVariables struct {
 	PostgresUser     string
 	PostgresDBName   string
 	TemplatesDir     string
+	TempoEndpoint    string
 }
 
 func getEnvironmentVariables() *EnvironmentVariables {
@@ -30,6 +32,7 @@ func getEnvironmentVariables() *EnvironmentVariables {
 		PostgresPassword: os.Getenv("POSTGRES_PASSWORD"),
 		PostgresDBName:   os.Getenv("POSTGRES_DB"),
 		TemplatesDir:     os.Getenv("TEMPLATES_DIR"),
+		TempoEndpoint:    os.Getenv("TEMPO_ENDPOINT"),
 	}
 }
 
@@ -67,6 +70,18 @@ func main() {
 
 	// Initialise Logger
 	logger := setupLogger(environmentVariables.LoggingLevel)
+
+	// Setup tracer
+	tp, errTp := initTracer(environmentVariables.TempoEndpoint)
+	if errTp != nil {
+		logger.Error("Failed to initialise tracer", slog.String("error", errTp.Error()))
+	}
+
+	defer func() {
+		if err := tp.Shutdown(context.Background()); err != nil {
+			logger.Error("Failed to shut down tracer provider", "error", err)
+		}
+	}()
 
 	// Initialise Database
 	database, dbErr := database.ConnectToDatabase(
