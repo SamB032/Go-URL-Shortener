@@ -4,6 +4,7 @@ import (
 	"log/slog"
 	"os"
 	"strings"
+	"context"
 
 	database "github.com/SamB032/Go-URL-Shortener/internal/database"
 	server "github.com/SamB032/Go-URL-Shortener/internal/httpServer"
@@ -67,6 +68,15 @@ func main() {
 
 	// Initialise Logger
 	logger := setupLogger(environmentVariables.LoggingLevel)
+
+
+	// Setup tracer
+	tp, errTp := initTracer()
+	if errTp != nil {
+		logger.Error("Failed to initialise tracer", slog.String("error", errTp.Error()))
+	}
+	defer func() { _ = tp.Shutdown(context.Background()) }()
+
 
 	// Initialise Database
 	database, dbErr := database.ConnectToDatabase(
