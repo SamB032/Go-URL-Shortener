@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	database "github.com/SamB032/Go-URL-Shortener/internal/database"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
 
 type Server struct {
@@ -27,9 +28,9 @@ func NewServer(serverPort string, logger *slog.Logger, db database.DBInterface, 
 		mux:          mux,
 	}
 
-	mux.HandleFunc("/", server.IndexPage)
-	mux.HandleFunc("/CreateShortUrl", server.FormSubmit)
-	mux.HandleFunc("/sk/", server.ShortKeyHandler)
+	http.Handle("/", otelhttp.NewHandler(http.HandlerFunc(server.IndexPage), "IndexPage"))
+	http.Handle("/CreateShortUrl", otelhttp.NewHandler(http.HandlerFunc(server.FormSubmit), "FormSubmit"))
+	http.Handle("/sk/", otelhttp.NewHandler(http.HandlerFunc(server.ShortKeyHandler), "ShortKeyHandler"))
 
 	return server
 }

@@ -69,13 +69,12 @@ func main() {
 	// Initialise Logger
 	logger := setupLogger(environmentVariables.LoggingLevel)
 
-
 	// Setup tracer
 	tp, errTp := initTracer()
 	if errTp != nil {
 		logger.Error("Failed to initialise tracer", slog.String("error", errTp.Error()))
 	}
-	defer func() { _ = tp.Shutdown(context.Background()) }()
+	defer tp.Shutdown(context.Background())
 
 
 	// Initialise Database
