@@ -74,7 +74,12 @@ func main() {
 	if errTp != nil {
 		logger.Error("Failed to initialise tracer", slog.String("error", errTp.Error()))
 	}
-	defer tp.Shutdown(context.Background())
+
+	defer func() {
+    if err := tp.Shutdown(context.Background()); err != nil {
+        logger.Error("Failed to shut down tracer provider", "error", err)
+    }
+	}()
 
 	// Initialise Database
 	database, dbErr := database.ConnectToDatabase(
