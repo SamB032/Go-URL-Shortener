@@ -28,9 +28,9 @@ func NewServer(serverPort string, logger *slog.Logger, db database.DBInterface, 
 		mux:          mux,
 	}
 
-	http.Handle("/", otelhttp.NewHandler(http.HandlerFunc(server.IndexPage), "IndexPage"))
-	http.Handle("/CreateShortUrl", otelhttp.NewHandler(http.HandlerFunc(server.FormSubmit), "FormSubmit"))
-	http.Handle("/sk/", otelhttp.NewHandler(http.HandlerFunc(server.ShortKeyHandler), "ShortKeyHandler"))
+	mux.Handle("/", otelhttp.NewHandler(http.HandlerFunc(server.IndexPage), "IndexPage"))
+	mux.Handle("/CreateShortUrl", otelhttp.NewHandler(http.HandlerFunc(server.FormSubmit), "FormSubmit"))
+	mux.Handle("/sk/", otelhttp.NewHandler(http.HandlerFunc(server.ShortKeyHandler), "ShortKeyHandler"))
 
 	return server
 }

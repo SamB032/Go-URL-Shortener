@@ -1,10 +1,10 @@
 package main
 
 import (
+	"context"
 	"log/slog"
 	"os"
 	"strings"
-	"context"
 
 	database "github.com/SamB032/Go-URL-Shortener/internal/database"
 	server "github.com/SamB032/Go-URL-Shortener/internal/httpServer"
@@ -75,7 +75,6 @@ func main() {
 		logger.Error("Failed to initialise tracer", slog.String("error", errTp.Error()))
 	}
 	defer tp.Shutdown(context.Background())
-
 
 	// Initialise Database
 	database, dbErr := database.ConnectToDatabase(
