@@ -20,7 +20,6 @@ type EnvironmentVariables struct {
 	PostgresDBName   string
 	TemplatesDir     string
 	JaegerEndpoint   string
-}
 
 func getEnvironmentVariables() *EnvironmentVariables {
 	return &EnvironmentVariables{

@@ -9,7 +9,6 @@ import (
 )
 
 func initTracer(otelExporterEndpoint string) (*sdktrace.TracerProvider, error) {
-
 	exp, err := jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(otelExporterEndpoint)))
 	if err != nil {
 		return nil, err
