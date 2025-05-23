@@ -2,9 +2,6 @@ package main
 
 import (
 	"context"
-	"strings"
-
-	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
@@ -12,9 +9,11 @@ import (
 )
 
 func initTracer(otelExporterEndpoint string) (*sdktrace.TracerProvider, error) {
-	exp, err := otlptracehttp.New(
-		context.Background(),
-		otlptracehttp.WithEndpoint(strings.TrimPrefix(otelExporterEndpoint, "http://")),
+	ctx := context.Background()
+
+	exporter, err := otlptracehttp.New(ctx,
+		otlptracehttp.WithEndpoint(otelExporterEndpoint),
+		otlptracehttp.WithURLPath("/v1/traces"),
 		otlptracehttp.WithInsecure(),
 	)
 	if err != nil {
@@ -22,13 +21,11 @@ func initTracer(otelExporterEndpoint string) (*sdktrace.TracerProvider, error) {
 	}
 
 	tp := sdktrace.NewTracerProvider(
-		sdktrace.WithBatcher(exp),
+		sdktrace.WithBatcher(exporter),
 		sdktrace.WithResource(resource.NewWithAttributes(
 			semconv.SchemaURL,
-			semconv.ServiceName("go-url-shortener"),
+			semconv.ServiceNameKey.String("go-url-server"),
 		)),
 	)
-
-	otel.SetTracerProvider(tp)
 	return tp, nil
 }
