@@ -41,17 +41,31 @@ resource "helm_release" "prometheus" {
   values    = [file("../helm/prometheus/values.yaml")]
 }
 
-resource "helm_release" "loki" {
-  name       = "loki"
-  repository = "https://grafana.github.io/helm-charts"
-  chart      = "loki-stack"
-  version    = "2.9.10"
+# resource "helm_release" "loki" {
+#   name       = "loki"
+#   repository = "https://grafana.github.io/helm-charts"
+#   chart      = "loki-stack"
+#   version    = "2.9.10"
+#
+#   namespace = kubernetes_namespace.namespace["monitoring"].metadata[0].name
+#   values = [
+#     file("../helm/loki/values.yaml")
+#   ]
+# }
 
-  namespace = kubernetes_namespace.namespace["monitoring"].metadata[0].name
+resource "helm_release" "jaeger" {
+  name       = "jaeger"
+  repository = "https://jaegertracing.github.io/helm-charts"
+  chart      = "jaeger"
+  version    = "3.4.1"
+
+  namespace  = kubernetes_namespace.namespace["monitoring"].metadata[0].name
+
   values = [
-    file("../helm/loki/values.yaml")
+    file("../helm/jaeger/values.yaml")
   ]
 }
+
 
 resource "kubernetes_config_map" "grafana_dashboards" {
   for_each = { for file in fileset("${path.module}/dashboards", "*.json") : file => file }

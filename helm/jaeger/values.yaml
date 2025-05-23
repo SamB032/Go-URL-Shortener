@@ -1,0 +1,39 @@
+collector:
+  enabled: true
+  otlp:
+    enabled: true
+    protocols:
+      grpc:
+        enabled: false
+      http:
+        enabled: true
+
+storage:
+  type: badger
+  badger:
+    directoryKey: /badger/key
+    directoryValue: /badger/data
+
+provisionDataStore:
+  cassandra: false
+
+cassandra:
+  enabled: false
+
+service:
+  type: ClusterIP
+  ports:
+    otlp:
+      port: 4318
+      targetPort: 4318
+      protocol: TCP
+      name: otlp-http
+
+query:
+  enabled: false
+  # service:
+  #   type: ClusterIP
+  # # exposes the Jaeger UI, can disable if only Grafana queries
+  # # Use this if you want Jaeger UI to be accessible
+  # ingress:
+  #   enabled: false
