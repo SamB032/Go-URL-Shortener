@@ -19,7 +19,7 @@ type EnvironmentVariables struct {
 	PostgresUser     string
 	PostgresDBName   string
 	TemplatesDir     string
-	TempoEndpoint    string
+	JaegerEndpoint   string
 }
 
 func getEnvironmentVariables() *EnvironmentVariables {
@@ -32,7 +32,7 @@ func getEnvironmentVariables() *EnvironmentVariables {
 		PostgresPassword: os.Getenv("POSTGRES_PASSWORD"),
 		PostgresDBName:   os.Getenv("POSTGRES_DB"),
 		TemplatesDir:     os.Getenv("TEMPLATES_DIR"),
-		TempoEndpoint:    os.Getenv("TEMPO_ENDPOINT"),
+		JaegerEndpoint:   os.Getenv("JAEGER_ENDPOINT"),
 	}
 }
 
@@ -72,7 +72,7 @@ func main() {
 	logger := setupLogger(environmentVariables.LoggingLevel)
 
 	// Setup tracer
-	tp, errTp := initTracer(environmentVariables.TempoEndpoint)
+	tp, errTp := initTracer(environmentVariables.JaegerEndpoint)
 	if errTp != nil {
 		logger.Error("Failed to initialise tracer", slog.String("error", errTp.Error()))
 	}

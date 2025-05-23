@@ -53,19 +53,6 @@ resource "helm_release" "loki" {
   ]
 }
 
-resource "helm_release" "tempo" {
-  name       = "tempo"
-  repository = "https://grafana.github.io/helm-charts"
-  chart      = "tempo"
-  version    = "1.21.1"
-
-  namespace = kubernetes_namespace.namespace["monitoring"].metadata[0].name
-
-  values = [
-    file("../helm/tempo/values.yaml")
-  ]
-}
-
 resource "kubernetes_config_map" "grafana_dashboards" {
   for_each = { for file in fileset("${path.module}/dashboards", "*.json") : file => file }
 

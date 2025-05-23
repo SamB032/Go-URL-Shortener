@@ -57,7 +57,7 @@ env:
     value: "5432"
   - name: SERVER_PORT
     value: "8000"
-  - name: TEMPO_ENDPOINT
+  - name: JAEGER_ENDPOINT
     value: "http://tempo.monitoring.svc.cluster.local:3100"
 
 livenessProbe:

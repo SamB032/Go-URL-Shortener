@@ -1,22 +1,16 @@
 package main
 
 import (
-	"context"
-	"strings"
-
 	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
 	"go.opentelemetry.io/otel/sdk/resource"
+	"go.opentelemetry.io/otel/exporters/jaeger"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.21.0"
 )
 
 func initTracer(otelExporterEndpoint string) (*sdktrace.TracerProvider, error) {
-	exp, err := otlptracehttp.New(
-		context.Background(),
-		otlptracehttp.WithEndpoint(strings.TrimPrefix(otelExporterEndpoint, "http://")),
-		otlptracehttp.WithInsecure(),
-	)
+
+	exp, err := jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(otelExporterEndpoint)))
 	if err != nil {
 		return nil, err
 	}
